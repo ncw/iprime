@@ -13,8 +13,8 @@ var (
 
 func test_fft_init(_log_n uint8) {
 	log_n = _log_n
-	n := uint(1) << log_n
-	x = make([]uint64, n)
+	n = uint(1) << log_n
+	fft_init()
 	rnd = make([]uint64, n)
 	z = make([]uint64, n)
 	/*
@@ -73,11 +73,24 @@ func testFastishVsFastish(t *testing.T) {
 	normaliseAndCompare(t, "Fastish vs Fastish")
 }
 
+func testFastishVsShift(t *testing.T) {
+	copy(x, rnd)
+	fft_shift(log_n, x)
+	invfft_fastish(log_n, x)
+	normaliseAndCompare(t, "Fastish vs Shift")
+
+	// copy(x, rnd)
+	// fft_fastish(log_n, x)
+	// invfft_shift(log_n, x)
+	// normaliseAndCompare(t, "Inv Fastish vs Shift")
+}
+
 func TestFFT1(t *testing.T) {
 	test_fft_init(1)
 	testSlowVsSlow(t)
 	testSlowVsFastish(t)
 	testFastishVsFastish(t)
+	testFastishVsShift(t)
 }
 
 func TestFFT2(t *testing.T) {
@@ -85,6 +98,7 @@ func TestFFT2(t *testing.T) {
 	testSlowVsSlow(t)
 	testSlowVsFastish(t)
 	testFastishVsFastish(t)
+	testFastishVsShift(t)
 }
 
 func TestFFT3(t *testing.T) {
@@ -92,6 +106,7 @@ func TestFFT3(t *testing.T) {
 	testSlowVsSlow(t)
 	testSlowVsFastish(t)
 	testFastishVsFastish(t)
+	testFastishVsShift(t)
 }
 
 func TestFFT4(t *testing.T) {
@@ -99,6 +114,7 @@ func TestFFT4(t *testing.T) {
 	testSlowVsSlow(t)
 	testSlowVsFastish(t)
 	testFastishVsFastish(t)
+	testFastishVsShift(t)
 }
 
 func TestFFT5(t *testing.T) {
@@ -106,6 +122,7 @@ func TestFFT5(t *testing.T) {
 	testSlowVsSlow(t)
 	testSlowVsFastish(t)
 	testFastishVsFastish(t)
+	testFastishVsShift(t)
 }
 
 func TestFFT6(t *testing.T) {
@@ -113,6 +130,7 @@ func TestFFT6(t *testing.T) {
 	testSlowVsSlow(t)
 	testSlowVsFastish(t)
 	testFastishVsFastish(t)
+	testFastishVsShift(t)
 }
 
 func TestFFT7(t *testing.T) {

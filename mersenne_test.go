@@ -84,7 +84,7 @@ func TestMersenneResidues(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping test in short mode.")
 	}
-	//to_test = 1
+	to_test = 1
 	for i := 0; i < to_test; i++ {
 		test := residues[i]
 		exponent = test.exponent
