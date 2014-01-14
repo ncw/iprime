@@ -9,15 +9,6 @@ import (
 
 // FIXME try coverage on this to see whether we are testing everything!
 
-// func BenchmarkRandomise(b *testing.B) {
-// 	b.StopTimer()
-// 	random := NewRandom()
-// 	b.StartTimer()
-// 	for i := 0; i < b.N; i++ {
-// 		random.Randomise()
-// 	}
-// }
-
 var (
 
 	// Interesting halves to provoke carries and overflows in MOD_P arithmetic
@@ -74,6 +65,16 @@ func TestModAdd(t *testing.T) {
 	}
 }
 
+func BenchmarkModAdd(b *testing.B) {
+	b.StopTimer()
+	x := mod_rnd()
+	y := mod_rnd()
+	b.StartTimer()
+	for i := 0; i < b.N; i++ {
+		x = mod_add(x, y)
+	}
+}
+
 func TestModAdc(t *testing.T) {
 	A := new(big.Int)
 	B := new(big.Int)
@@ -120,6 +121,16 @@ func TestModSub(t *testing.T) {
 	}
 }
 
+func BenchmarkModSub(b *testing.B) {
+	b.StopTimer()
+	x := mod_rnd()
+	y := mod_rnd()
+	b.StartTimer()
+	for i := 0; i < b.N; i++ {
+		x = mod_sub(x, y)
+	}
+}
+
 func TestModReduce(t *testing.T) {
 	MakeNumbers()
 	A := new(big.Int)
@@ -160,6 +171,16 @@ func TestModMul(t *testing.T) {
 	}
 }
 
+func BenchmarkModMul(b *testing.B) {
+	b.StopTimer()
+	x := mod_rnd()
+	y := mod_rnd()
+	b.StartTimer()
+	for i := 0; i < b.N; i++ {
+		x = mod_mul(x, y)
+	}
+}
+
 func TestModSqr(t *testing.T) {
 	A := new(big.Int)
 	B := new(big.Int)
@@ -172,6 +193,15 @@ func TestModSqr(t *testing.T) {
 		if b != expected {
 			t.Fatalf("%d**2: Expecting %d but got %d", a, expected, b)
 		}
+	}
+}
+
+func BenchmarkModSqr(b *testing.B) {
+	b.StopTimer()
+	x := mod_rnd()
+	b.StartTimer()
+	for i := 0; i < b.N; i++ {
+		x = mod_sqr(x)
 	}
 }
 
