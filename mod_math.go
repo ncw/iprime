@@ -108,6 +108,7 @@
 package main
 
 import (
+	"fmt"
 	"math/rand"
 )
 
@@ -381,14 +382,19 @@ func mod_shift64to95(x uint64, shift uint8) uint64 {
 // FFTs we only need shifts of multiples of 3, eg 3,6,9,12...
 func mod_shift(x uint64, shift uint8) uint64 {
 	switch {
+	case shift == 0:
+		return x
 	case shift < 32:
 		return mod_shift0to31(x, shift)
 	case shift < 64:
 		return mod_shift32to63(x, shift)
 	case shift < 96:
 		return mod_shift64to95(x, shift)
+	case shift == 96:
+		// shift of 96 is negate
+		return mod_sub(0, x)
 	default:
-		panic("Bad shift value in mod_shift")
+		panic(fmt.Sprintf("Bad shift value %d in mod_shift", shift))
 	}
 	return x
 }

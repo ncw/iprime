@@ -2,8 +2,6 @@
 
 package main
 
-import ()
-
 var (
 	x        []uint64
 	MOD_W    uint64
@@ -123,7 +121,7 @@ func invfft_fastish(log_n uint8, x []uint64) {
 	for k := uint8(1); k <= log_n; k++ {
 		m := uint(1) << k
 		c := m >> 1
-		z := uint64((1 << (uint32(log_n) - uint32(k))))
+		z := uint64(1 << (log_n - k))
 		d := mod_pow(MOD_INVW, z)
 		w := uint64(1)
 		for j := uint(0); j < c; j++ {
@@ -146,12 +144,7 @@ func invfft_fastish(log_n uint8, x []uint64) {
 //
 // Output is bit-reversed
 func fft_shift(log_n uint8, x []uint64) {
-	var d uint8 = 0
-	var n uint = 1 << log_n
-	if n != 0 {
-		d = uint8(192 / n)
-	}
-
+	d := uint8(192 / n)
 	for k := log_n; k >= 1; k-- {
 		m := uint(1) << k
 		c := m >> 1
@@ -168,5 +161,32 @@ func fft_shift(log_n uint8, x []uint64) {
 			w += d
 		}
 		d = 2 * d
+	}
+}
+
+// A O(n log n) Inverse FFT which uses shifts only
+//
+// Can only be use for log_n = 1..6
+//
+// Input should be bit-reversed
+func invfft_shift(log_n uint8, x []uint64) {
+	d := uint8(192/n) << (log_n - 1)
+	for k := uint8(1); k <= log_n; k++ {
+		m := uint(1) << k
+		c := m >> 1
+		var w uint8 = 0
+		for j := uint(0); j < c; j++ {
+			for r := uint(0); r < n; r += m {
+				a := r + j
+				b := a + c
+				u := x[a]
+				v := mod_shift(x[b], 96-w)
+				// Note that shifting by 96 is negate so negate butterfly
+				x[a] = mod_sub(u, v)
+				x[b] = mod_add(u, v)
+			}
+			w += d
+		}
+		d >>= 1
 	}
 }

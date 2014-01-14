@@ -79,10 +79,10 @@ func testFastishVsShift(t *testing.T) {
 	invfft_fastish(log_n, x)
 	normaliseAndCompare(t, "Fastish vs Shift")
 
-	// copy(x, rnd)
-	// fft_fastish(log_n, x)
-	// invfft_shift(log_n, x)
-	// normaliseAndCompare(t, "Inv Fastish vs Shift")
+	copy(x, rnd)
+	fft_fastish(log_n, x)
+	invfft_shift(log_n, x)
+	normaliseAndCompare(t, "Inv Fastish vs Shift")
 }
 
 func TestFFT1(t *testing.T) {
