@@ -65,7 +65,7 @@ func copytranspose(start []uint64, startpt int, dest []uint64, destpt int, destl
 // below transposes block (1,1) and then moves down the first
 // row and first column of blocks, switching their transposes.
 // Then the process repeats for the second row and column, etc
-func TransposeSquareFast(x, scratch []uint64, log_side uint8) []uint64 {
+func TransposeSquareFast(x, scratch []uint64, log_side uint8) ([]uint64, []uint64) {
 	if log_side < BL {
 		panic("Too small to transpose")
 	}
@@ -85,11 +85,11 @@ func TransposeSquareFast(x, scratch []uint64, log_side uint8) []uint64 {
 		/* move down and to the right */
 		corner += (1 << (log_side + BL)) + (1 << BL)
 	}
-	return x
+	return x, scratch
 }
 
 // Transpose a square matrix
-func TransposeSquareSlow(x []uint64, log_side uint8) []uint64 {
+func TransposeSquareSlow(x, scratch []uint64, log_side uint8) ([]uint64, []uint64) {
 	side := 1 << log_side
 	for i := 1; i < side; i++ {
 		a := i
@@ -100,23 +100,39 @@ func TransposeSquareSlow(x []uint64, log_side uint8) []uint64 {
 			b++
 		}
 	}
-	return x
+	return x, scratch
+}
+
+// Transpose a non square matrix
+func TransposeSlow(x, scratch []uint64, log_cols uint8, log_rows uint8) ([]uint64, []uint64) {
+	rows := 1 << log_rows
+	cols := 1 << log_cols
+	a := 0
+	for i := 0; i < rows; i++ {
+		b := i
+		for j := 0; j < cols; j++ {
+			scratch[a] = x[b]
+			a++
+			b += rows
+		}
+	}
+	return scratch, x
 }
 
 // Transpose a matrix
 //
 // Pass in some scratch space which should be the same size as x
 //
-// It returns x or the scratch space whichever has the answer in
-func Transpose(x, scratch []uint64, log_cols uint8, log_rows uint8) []uint64 {
+// It returns x, scratch which it may swap over
+func Transpose(x, scratch []uint64, log_cols uint8, log_rows uint8) ([]uint64, []uint64) {
 	if log_cols == log_rows {
 		if log_cols < BL {
-			return TransposeSquareSlow(x, log_cols)
+			return TransposeSquareSlow(x, scratch, log_cols)
 		} else {
 			return TransposeSquareFast(x, scratch, log_cols)
 		}
 	} else {
-		panic("Can only transpose square matrices at the moment")
+		return TransposeSlow(x, scratch, log_cols, log_rows)
 	}
-	return nil
+	panic("unreachable")
 }
