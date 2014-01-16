@@ -91,13 +91,13 @@ func TransposeSquareFast(x, scratch []uint64, log_side uint8) []uint64 {
 // Transpose a square matrix
 func TransposeSquareSlow(x []uint64, log_side uint8) []uint64 {
 	side := 1 << log_side
-	for i := 0; i < side; i++ {
-		for j := 0; j < side; j++ {
-			a := (j << log_side) + i
-			b := (i << log_side) + j
-			if a < b {
-				x[a], x[b] = x[b], x[a]
-			}
+	for i := 1; i < side; i++ {
+		a := i
+		b := i << log_side
+		for j := 0; j < i; j++ {
+			x[b], x[a] = x[a], x[b]
+			a += side
+			b++
 		}
 	}
 	return x
@@ -116,7 +116,7 @@ func Transpose(x, scratch []uint64, log_cols uint8, log_rows uint8) []uint64 {
 			return TransposeSquareFast(x, scratch, log_cols)
 		}
 	} else {
-		panic("Can't only inplace transpose square matrices at the moment")
+		panic("Can only transpose square matrices at the moment")
 	}
 	return nil
 }

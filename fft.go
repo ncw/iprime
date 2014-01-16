@@ -237,3 +237,170 @@ func (f *FftShift) InvFft(x []uint64) {
 		d >>= 1
 	}
 }
+
+// ------------------------------------------------------------
+
+// A fastish bit reversed O(n log n) FFT
+type FftFourStep struct {
+	FftBasics
+	log_rows    uint8
+	log_cols    uint8
+	rows        uint
+	cols        uint
+	twiddle     []uint64
+	inv_twiddle []uint64
+	scratch     []uint64
+	col_fft     Fft
+	row_fft     Fft
+}
+
+// Check interface is satisfied
+var _ Fft = (*FftFourStep)(nil)
+
+func NewFftFourStep(log_n uint8) *FftFourStep {
+	f := &FftFourStep{}
+	f.Init(log_n)
+
+	f.log_rows = f.log_n / 2
+	f.log_cols = f.log_n - f.log_rows
+	f.rows = 1 << f.log_rows
+	f.cols = 1 << f.log_cols
+	if f.log_rows <= 6 {
+		f.row_fft = NewFftShift(f.log_rows)
+	} else {
+		f.row_fft = NewFftFastish(f.log_rows)
+	}
+	if f.log_cols <= 6 {
+		f.col_fft = NewFftShift(f.log_cols)
+	} else {
+		f.col_fft = NewFftFastish(f.log_cols)
+	}
+
+	// Make the twiddles
+	ddw := f.MOD_W
+	iddw := f.MOD_INVW
+	dw := uint64(1)
+	idw := uint64(1)
+	p := 0
+	f.twiddle = make([]uint64, f.n)
+	f.inv_twiddle = make([]uint64, f.n)
+	f.scratch = make([]uint64, f.n)
+	for j := uint(0); j < f.cols; j++ {
+		w := uint64(1)
+		iw := uint64(1)
+		for i := uint(0); i < f.rows; i++ {
+			f.twiddle[p] = w
+			f.inv_twiddle[p] = iw
+			w = mod_mul(w, dw)
+			iw = mod_mul(iw, idw)
+			p++
+		}
+		dw = mod_mul(dw, ddw)
+		idw = mod_mul(idw, iddw)
+	}
+
+	// bit reverse the twiddles
+	// for i := uint(0); i < f.rows; i++ {
+	// 	f.col_fft.BitReverse(f.twiddle[i<<f.log_rows : i<<f.log_rows+f.rows])
+	// }
+	// Transpose(f.inv_twiddle, f.scratch, f.log_cols, f.log_rows)
+	// for i := uint(0); i < f.cols; i++ {
+	// 	f.row_fft.BitReverse(f.inv_twiddle[i<<f.log_cols : i<<f.log_cols+f.cols])
+	// }
+	// Transpose(f.inv_twiddle, f.scratch, f.log_cols, f.log_rows)
+
+	/* transpose the weighting arrays */
+	// FIXME Transpose(f.digit_weight, f.scratch, f.log_cols, f.log_rows)
+	// Transpose(f.digit_unweight, f.scratch, f.log_cols, f.log_rows)
+
+	return f
+}
+
+// A O(n log n) FFT which uses shifts only
+//
+// Can only be use for log_n = 1..6
+//
+// Output is bit-reversed
+func (f *FftFourStep) _Fft(x []uint64, inverse bool) {
+	// FIXME why start and end transpose needed
+	// FIXME get rid of bit reverse?
+	// FIXME make non square work
+
+	/* transpose the matrix */
+	Transpose(x, f.scratch, f.log_cols, f.log_rows)
+
+	/* fft down the rows */
+	for i := uint(0); i < f.rows; i++ {
+		p := x[i<<f.log_cols : (i+1)<<f.log_cols]
+		if inverse {
+			f.col_fft.BitReverse(p)
+			f.col_fft.InvFft(p)
+		} else {
+			f.col_fft.Fft(p)
+			f.col_fft.BitReverse(p)
+		}
+		// FIXME should multiply by twiddle here row by row while it is in cache
+	}
+
+	/* multiply by constant */
+	if inverse {
+		mod_vector_mul(f.n, x, f.inv_twiddle)
+	} else {
+		mod_vector_mul(f.n, x, f.twiddle)
+	}
+
+	/* transpose the matrix */
+	Transpose(x, f.scratch, f.log_cols, f.log_rows)
+
+	/* fft down the columns */
+	for i := uint(0); i < f.cols; i++ {
+		p := x[i<<f.log_rows : (i+1)<<f.log_rows]
+		if inverse {
+			f.row_fft.BitReverse(p)
+			f.row_fft.InvFft(p)
+		} else {
+			f.row_fft.Fft(p)
+			f.row_fft.BitReverse(p)
+		}
+	}
+
+	/* bit reverse down the rows */
+	// for i := uint(0); i < f.rows; i++ {
+	// 	p := x[i<<f.log_cols : i<<f.log_cols+f.rows]
+	// 	f.col_fft.BitReverse(p)
+	// }
+	// Transpose(x, f.scratch, f.log_cols, f.log_rows)
+	// for i := uint(0); i < f.cols; i++ {
+	// 	p := x[i<<f.log_rows : i<<f.log_rows+f.cols]
+	// 	f.row_fft.BitReverse(p)
+	// }
+	// Transpose(x, f.scratch, f.log_cols, f.log_rows)
+
+	/* transpose the matrix */
+	//	Transpose(x, f.scratch, f.log_cols, f.log_rows)
+
+	/*     if (!inverse) */
+	/*         bit_reverse((int)log_n, x); */
+
+	/* transpose the matrix */
+	Transpose(x, f.scratch, f.log_cols, f.log_rows)
+
+}
+
+// A O(n log n) Four step fft
+//
+// Can only be use for log_n = 1..6
+//
+// Output is bit-reversed
+func (f *FftFourStep) Fft(x []uint64) {
+	f._Fft(x, false)
+}
+
+// A O(n log n) Four step fft
+//
+// Can only be use for log_n = 1..6
+//
+// Input should be bit-reversed
+func (f *FftFourStep) InvFft(x []uint64) {
+	f._Fft(x, true)
+}

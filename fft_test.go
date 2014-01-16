@@ -7,21 +7,25 @@ import (
 )
 
 var (
-	rnd     []uint64
-	z       []uint64
-	x       []uint64
-	slow    Fft
-	fastish Fft
-	shift   Fft
+	rnd       []uint64
+	x         []uint64
+	y         []uint64
+	z         []uint64
+	slow      Fft
+	fastish   Fft
+	shift     Fft
+	four_step Fft
 )
 
 func test_fft_init(log_n uint8) {
 	slow = NewFftSlow(log_n)
 	fastish = NewFftFastish(log_n)
 	shift = NewFftShift(log_n)
+	four_step = NewFftFourStep(log_n)
 	n := uint(1) << log_n
 	rnd = make([]uint64, n)
 	x = make([]uint64, n)
+	y = make([]uint64, n)
 	z = make([]uint64, n)
 	/*
 		four_step = 0;
@@ -37,9 +41,8 @@ func test_fft_init(log_n uint8) {
 }
 
 func normaliseAndCompare(t *testing.T, what string) {
-	n := uint(len(x))
-
 	// normalise
+	n := uint(len(x))
 	inv_n := mod_inv(uint64(n))
 	for i := uint(0); i < n; i++ {
 		x[i] = mod_mul(x[i], inv_n)
@@ -49,6 +52,15 @@ func normaliseAndCompare(t *testing.T, what string) {
 	for i := uint(0); i < n; i++ {
 		if x[i] != rnd[i] {
 			t.Errorf("%s %d: orig=%d xform=%d ERROR\n", what, i, x[i], rnd[i])
+		}
+	}
+}
+
+func compare(t *testing.T, what string) {
+	n := uint(len(x))
+	for i := uint(0); i < n; i++ {
+		if x[i] != y[i] {
+			t.Errorf("%s %d: difference %d vs %d ERROR\n", what, i, x[i], y[i])
 		}
 	}
 }
@@ -63,15 +75,17 @@ func testSlowVsSlow(t *testing.T) {
 func testSlowVsFastish(t *testing.T) {
 	copy(x, rnd)
 	slow.Fft(x)
-	slow.BitReverse(x)
-	fastish.InvFft(x)
-	normaliseAndCompare(t, "Slow vs Fastish")
+	copy(y, rnd)
+	fastish.Fft(y)
+	fastish.BitReverse(y)
+	compare(t, "Slow vs Fastish")
 
 	copy(x, rnd)
-	fastish.Fft(x)
-	slow.BitReverse(x)
-	slow.InvFft(x)
-	normaliseAndCompare(t, "Slow vs Fastish Inv")
+	fastish.BitReverse(x)
+	fastish.InvFft(x)
+	copy(y, rnd)
+	slow.InvFft(y)
+	compare(t, "Slow vs Fastish Inv")
 }
 
 func testFastishVsFastish(t *testing.T) {
@@ -84,13 +98,31 @@ func testFastishVsFastish(t *testing.T) {
 func testFastishVsShift(t *testing.T) {
 	copy(x, rnd)
 	shift.Fft(x)
-	fastish.InvFft(x)
-	normaliseAndCompare(t, "Fastish vs Shift")
+	copy(y, rnd)
+	fastish.Fft(y)
+	compare(t, "Fastish vs Shift")
 
 	copy(x, rnd)
-	fastish.Fft(x)
-	shift.InvFft(x)
-	normaliseAndCompare(t, "Inv Fastish vs Shift")
+	fastish.InvFft(x)
+	copy(y, rnd)
+	shift.InvFft(y)
+	compare(t, "Inv Fastish vs Shift")
+}
+
+func testFastishVsFourStep(t *testing.T) {
+	copy(x, rnd)
+	four_step.Fft(x)
+	copy(y, rnd)
+	fastish.Fft(y)
+	fastish.BitReverse(y)
+	compare(t, "Fastish vs FourStep")
+
+	copy(x, rnd)
+	four_step.InvFft(x)
+	copy(y, rnd)
+	fastish.BitReverse(y)
+	fastish.InvFft(y)
+	compare(t, "Inv Fastish vs FourStep")
 }
 
 func TestFFT0(t *testing.T) {
@@ -115,6 +147,7 @@ func TestFFT2(t *testing.T) {
 	testSlowVsFastish(t)
 	testFastishVsFastish(t)
 	testFastishVsShift(t)
+	testFastishVsFourStep(t)
 }
 
 func TestFFT3(t *testing.T) {
@@ -123,6 +156,7 @@ func TestFFT3(t *testing.T) {
 	testSlowVsFastish(t)
 	testFastishVsFastish(t)
 	testFastishVsShift(t)
+	// testFastishVsFourStep(t)
 }
 
 func TestFFT4(t *testing.T) {
@@ -131,6 +165,7 @@ func TestFFT4(t *testing.T) {
 	testSlowVsFastish(t)
 	testFastishVsFastish(t)
 	testFastishVsShift(t)
+	testFastishVsFourStep(t)
 }
 
 func TestFFT5(t *testing.T) {
@@ -139,6 +174,7 @@ func TestFFT5(t *testing.T) {
 	testSlowVsFastish(t)
 	testFastishVsFastish(t)
 	testFastishVsShift(t)
+	//	testFastishVsFourStep(t)
 }
 
 func TestFFT6(t *testing.T) {
@@ -147,6 +183,7 @@ func TestFFT6(t *testing.T) {
 	testSlowVsFastish(t)
 	testFastishVsFastish(t)
 	testFastishVsShift(t)
+	testFastishVsFourStep(t)
 }
 
 func Benchmark_fastish_Fft6(b *testing.B) {
@@ -194,6 +231,7 @@ func TestFFT7(t *testing.T) {
 	testSlowVsSlow(t)
 	testSlowVsFastish(t)
 	testFastishVsFastish(t)
+	//	testFastishVsFourStep(t)
 }
 
 func TestFFT8(t *testing.T) {
@@ -201,6 +239,7 @@ func TestFFT8(t *testing.T) {
 	testSlowVsSlow(t)
 	testSlowVsFastish(t)
 	testFastishVsFastish(t)
+	testFastishVsFourStep(t)
 }
 
 func TestFFT9(t *testing.T) {
@@ -208,6 +247,7 @@ func TestFFT9(t *testing.T) {
 	testSlowVsSlow(t)
 	testSlowVsFastish(t)
 	testFastishVsFastish(t)
+	//	testFastishVsFourStep(t)
 }
 
 func TestFFT10(t *testing.T) {
@@ -215,6 +255,7 @@ func TestFFT10(t *testing.T) {
 	testSlowVsSlow(t)
 	testSlowVsFastish(t)
 	testFastishVsFastish(t)
+	testFastishVsFourStep(t)
 }
 
 func TestFFT11(t *testing.T) {
@@ -222,6 +263,7 @@ func TestFFT11(t *testing.T) {
 	testSlowVsSlow(t)
 	testSlowVsFastish(t)
 	testFastishVsFastish(t)
+	//	testFastishVsFourStep(t)
 }
 
 func TestFFT12(t *testing.T) {
@@ -229,6 +271,7 @@ func TestFFT12(t *testing.T) {
 	// testSlowVsSlow(t)
 	// testSlowVsFastish(t)
 	testFastishVsFastish(t)
+	testFastishVsFourStep(t)
 }
 
 func TestFFT13(t *testing.T) {
@@ -236,6 +279,7 @@ func TestFFT13(t *testing.T) {
 	// testSlowVsSlow(t)
 	// testSlowVsFastish(t)
 	testFastishVsFastish(t)
+	//	testFastishVsFourStep(t)
 }
 
 func TestFFT14(t *testing.T) {
@@ -243,6 +287,7 @@ func TestFFT14(t *testing.T) {
 	// testSlowVsSlow(t)
 	// testSlowVsFastish(t)
 	testFastishVsFastish(t)
+	testFastishVsFourStep(t)
 }
 
 func TestFFT15(t *testing.T) {
@@ -250,6 +295,7 @@ func TestFFT15(t *testing.T) {
 	// testSlowVsSlow(t)
 	// testSlowVsFastish(t)
 	testFastishVsFastish(t)
+	//	testFastishVsFourStep(t)
 }
 
 func TestFFT16(t *testing.T) {
@@ -257,6 +303,7 @@ func TestFFT16(t *testing.T) {
 	// testSlowVsSlow(t)
 	// testSlowVsFastish(t)
 	testFastishVsFastish(t)
+	testFastishVsFourStep(t)
 }
 
 func TestFFT17(t *testing.T) {
@@ -264,6 +311,7 @@ func TestFFT17(t *testing.T) {
 	// testSlowVsSlow(t)
 	// testSlowVsFastish(t)
 	testFastishVsFastish(t)
+	//	testFastishVsFourStep(t)
 }
 
 func TestFFT18(t *testing.T) {
@@ -271,6 +319,7 @@ func TestFFT18(t *testing.T) {
 	// testSlowVsSlow(t)
 	// testSlowVsFastish(t)
 	testFastishVsFastish(t)
+	testFastishVsFourStep(t)
 }
 
 func TestFFT19(t *testing.T) {
@@ -278,6 +327,7 @@ func TestFFT19(t *testing.T) {
 	// testSlowVsSlow(t)
 	// testSlowVsFastish(t)
 	testFastishVsFastish(t)
+	//	testFastishVsFourStep(t)
 }
 
 func TestFFT20(t *testing.T) {
@@ -285,6 +335,47 @@ func TestFFT20(t *testing.T) {
 	// testSlowVsSlow(t)
 	// testSlowVsFastish(t)
 	testFastishVsFastish(t)
+	testFastishVsFourStep(t)
+}
+
+func Benchmark_fastish_Fft20(b *testing.B) {
+	b.StopTimer()
+	test_fft_init(20)
+	copy(x, rnd)
+	b.StartTimer()
+	for i := 0; i < b.N; i++ {
+		fastish.Fft(x)
+	}
+}
+
+func Benchmark_fastish_InvFft20(b *testing.B) {
+	b.StopTimer()
+	test_fft_init(20)
+	copy(x, rnd)
+	b.StartTimer()
+	for i := 0; i < b.N; i++ {
+		fastish.InvFft(x)
+	}
+}
+
+func Benchmark_four_step_Fft20(b *testing.B) {
+	b.StopTimer()
+	test_fft_init(20)
+	copy(x, rnd)
+	b.StartTimer()
+	for i := 0; i < b.N; i++ {
+		four_step.Fft(x)
+	}
+}
+
+func Benchmark_four_step_InvFft20(b *testing.B) {
+	b.StopTimer()
+	test_fft_init(20)
+	copy(x, rnd)
+	b.StartTimer()
+	for i := 0; i < b.N; i++ {
+		four_step.InvFft(x)
+	}
 }
 
 func test_fft(log_n uint8) {
