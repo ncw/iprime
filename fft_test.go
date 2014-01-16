@@ -156,7 +156,7 @@ func TestFFT3(t *testing.T) {
 	testSlowVsFastish(t)
 	testFastishVsFastish(t)
 	testFastishVsShift(t)
-	// testFastishVsFourStep(t)
+	testFastishVsFourStep(t)
 }
 
 func TestFFT4(t *testing.T) {

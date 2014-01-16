@@ -265,15 +265,15 @@ func NewFftFourStep(log_n uint8) *FftFourStep {
 	f.log_cols = f.log_n - f.log_rows
 	f.rows = 1 << f.log_rows
 	f.cols = 1 << f.log_cols
-	if f.log_rows <= 6 {
-		f.row_fft = NewFftShift(f.log_rows)
-	} else {
-		f.row_fft = NewFftFastish(f.log_rows)
-	}
 	if f.log_cols <= 6 {
-		f.col_fft = NewFftShift(f.log_cols)
+		f.row_fft = NewFftShift(f.log_cols)
 	} else {
-		f.col_fft = NewFftFastish(f.log_cols)
+		f.row_fft = NewFftFastish(f.log_cols)
+	}
+	if f.log_rows <= 6 {
+		f.col_fft = NewFftShift(f.log_rows)
+	} else {
+		f.col_fft = NewFftFastish(f.log_rows)
 	}
 
 	// Make the twiddles
@@ -285,10 +285,10 @@ func NewFftFourStep(log_n uint8) *FftFourStep {
 	f.twiddle = make([]uint64, f.n)
 	f.inv_twiddle = make([]uint64, f.n)
 	f.scratch = make([]uint64, f.n)
-	for j := uint(0); j < f.cols; j++ {
+	for ix := uint(0); ix < f.cols; ix++ {
 		w := uint64(1)
 		iw := uint64(1)
-		for i := uint(0); i < f.rows; i++ {
+		for iy := uint(0); iy < f.rows; iy++ {
 			f.twiddle[p] = w
 			f.inv_twiddle[p] = iw
 			w = mod_mul(w, dw)
@@ -323,15 +323,20 @@ func NewFftFourStep(log_n uint8) *FftFourStep {
 // Output is bit-reversed
 func (f *FftFourStep) _Fft(x []uint64, inverse bool) {
 	// FIXME why start and end transpose needed
+	// because Baileys original FFT which this follows is based on
+	// fortran and column major addressing where as we are using row
+	// major addressing
+
 	// FIXME get rid of bit reverse?
+
 	// FIXME make non square work
 
 	/* transpose the matrix */
-	Transpose(x, f.scratch, f.log_cols, f.log_rows)
+	x, f.scratch = Transpose(x, f.scratch, f.log_cols, f.log_rows)
 
-	/* fft down the rows */
-	for i := uint(0); i < f.rows; i++ {
-		p := x[i<<f.log_cols : (i+1)<<f.log_cols]
+	/* fft down the columns */
+	for iy := uint(0); iy < f.cols; iy++ {
+		p := x[iy<<f.log_rows : (iy+1)<<f.log_rows]
 		if inverse {
 			f.col_fft.BitReverse(p)
 			f.col_fft.InvFft(p)
@@ -350,11 +355,11 @@ func (f *FftFourStep) _Fft(x []uint64, inverse bool) {
 	}
 
 	/* transpose the matrix */
-	Transpose(x, f.scratch, f.log_cols, f.log_rows)
+	x, f.scratch = Transpose(x, f.scratch, f.log_rows, f.log_cols)
 
-	/* fft down the columns */
-	for i := uint(0); i < f.cols; i++ {
-		p := x[i<<f.log_rows : (i+1)<<f.log_rows]
+	/* fft down the rows */
+	for iy := uint(0); iy < f.rows; iy++ {
+		p := x[iy<<f.log_cols : (iy+1)<<f.log_cols]
 		if inverse {
 			f.row_fft.BitReverse(p)
 			f.row_fft.InvFft(p)
@@ -362,7 +367,11 @@ func (f *FftFourStep) _Fft(x []uint64, inverse bool) {
 			f.row_fft.Fft(p)
 			f.row_fft.BitReverse(p)
 		}
+		// FIXME should multiply by twiddle here row by row while it is in cache
 	}
+
+	/* transpose the matrix */
+	x, f.scratch = Transpose(x, f.scratch, f.log_cols, f.log_rows)
 
 	/* bit reverse down the rows */
 	// for i := uint(0); i < f.rows; i++ {
@@ -381,9 +390,6 @@ func (f *FftFourStep) _Fft(x []uint64, inverse bool) {
 
 	/*     if (!inverse) */
 	/*         bit_reverse((int)log_n, x); */
-
-	/* transpose the matrix */
-	Transpose(x, f.scratch, f.log_cols, f.log_rows)
 
 }
 
