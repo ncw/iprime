@@ -2,6 +2,10 @@
 
 package main
 
+import (
+	"fmt"
+)
+
 // FFT interface
 type Fft interface {
 	Fft([]uint64)
@@ -240,7 +244,76 @@ func (f *FftShift) InvFft(x []uint64) {
 
 // ------------------------------------------------------------
 
-// A fastish bit reversed O(n log n) FFT
+// A unrolled bit reversed O(n log n) FFT
+type FftUnrolled struct {
+	FftBasics
+	fft    func(x []uint64)
+	invfft func(x []uint64)
+}
+
+// Check interface is satisfied
+var _ Fft = (*FftUnrolled)(nil)
+
+func NewFftUnrolled(log_n uint8) *FftUnrolled {
+	f := &FftUnrolled{}
+	f.Init(log_n)
+	switch log_n {
+	case 0:
+		f.fft = fft0
+		f.invfft = invfft0
+	case 1:
+		f.fft = fft1
+		f.invfft = invfft1
+	case 2:
+		f.fft = fft2
+		f.invfft = invfft2
+	case 3:
+		f.fft = fft3
+		f.invfft = invfft3
+	case 4:
+		f.fft = fft4
+		f.invfft = invfft4
+	case 5:
+		f.fft = fft5
+		f.invfft = invfft5
+	case 6:
+		f.fft = fft6
+		f.invfft = invfft6
+	case 7:
+		f.fft = fft7
+		f.invfft = invfft7
+	case 8:
+		f.fft = fft8
+		f.invfft = invfft8
+	case 9:
+		f.fft = fft9
+		f.invfft = invfft9
+	case 10:
+		f.fft = fft10
+		f.invfft = invfft10
+	default:
+		panic(fmt.Sprintf("Don't have unrolled fft for log_n = %d", log_n))
+	}
+	return f
+}
+
+// A unrolled O(n log n) FFT
+//
+// Output is bit-reversed
+func (f *FftUnrolled) Fft(x []uint64) {
+	f.fft(x)
+}
+
+// A unrolled O(n log n) Inverse FFT
+//
+// Input should be bit-reversed
+func (f *FftUnrolled) InvFft(x []uint64) {
+	f.invfft(x)
+}
+
+// ------------------------------------------------------------
+
+// A four step O(n log n) FFT
 type FftFourStep struct {
 	FftBasics
 	log_rows    uint8
