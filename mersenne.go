@@ -130,7 +130,13 @@ func (m *Mersenne) Initialise(log_n uint8, exponent uint64) bool {
 	}
 
 	// fft_initialise
-	m.fft = NewFftFastish(m.log_n)
+	if m.log_n <= 10 {
+		m.fft = NewFftUnrolled(m.log_n)
+	} else if m.log_n%2 == 0 {
+		m.fft = NewFftFourStep(m.log_n)
+	} else {
+		m.fft = NewFftFastish(m.log_n)
+	}
 
 	return true
 }

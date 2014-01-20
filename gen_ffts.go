@@ -1,11 +1,20 @@
 // +build ignore
 
+// FIXME factor add/sub/mul/shift out into butterfly
+// which will stop excessive inlining and maybe be quicker
+// x[1], x[2] = butterfly(x[1], x[2], w)
+// x[1], x[2] = butterfly_shift(x[1], x[2], 5)
+// x[1], x[2] = butterfly_shift5(x[1], x[2])
+
+// FIXME specialise shifts by generating code for them mod_shift5
+
 // Generate ffts.go like this
 //
 // go run mod_math.go gen_ffts.go | gofmt >ffts.go
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"log"
 	"os"
@@ -24,19 +33,35 @@ func init() {
 	}
 }
 
-func make_mod_mul(a string, w uint64) string {
+func make_butterfly(a, b uint, w uint64) string {
 	if w == 0 {
-		return "0"
+		panic("Butterflies can't be 0")
 	}
 	if w == 1 {
-		return a
+		return fmt.Sprintf("butterfly_null(x[%d], x[%d])", a, b)
 	}
 	for i, x := range PowersOfTwo {
 		if x == w {
-			return fmt.Sprintf("mod_shift(%s, %d)", a, i)
+			return fmt.Sprintf("butterfly_shift(x[%d], x[%d], %d)", a, b, i)
 		}
 	}
-	return fmt.Sprintf("mod_mul(%s, %d)", a, w)
+	return fmt.Sprintf("butterfly_mul(x[%d], x[%d], %d)", a, b, w)
+}
+
+func make_invbutterfly(a, b uint, w uint64) string {
+	if w == 0 {
+		panic("Butterflies can't be 0")
+	}
+	if w == 1 {
+		return fmt.Sprintf("invbutterfly_null(x[%d], x[%d])", a, b)
+	}
+	for i, x := range PowersOfTwo {
+		if x == w {
+			// Since 2^96 mod p = -1, we subtract -1 and use a negative butterfly
+			return fmt.Sprintf("invbutterfly_shift(x[%d], x[%d], %d)", a, b, i-96)
+		}
+	}
+	return fmt.Sprintf("invbutterfly_mul(x[%d], x[%d], %d)", a, b, w)
 }
 
 func MakeFft(_log_n int) string {
@@ -44,12 +69,12 @@ func MakeFft(_log_n int) string {
 	if log_n == 0 {
 		return ""
 	}
-	out := "var u, v uint64\n"
 	n := uint(1) << log_n
 	mod_w := mod_pow(7, (MOD_P-1)/uint64(n))
 	mod_w = mod_pow(mod_w, 5)
 	var d uint64 = mod_w
 
+	out := new(bytes.Buffer)
 	for k := log_n; k >= 1; k-- {
 		m := uint(1) << k
 		c := m >> 1
@@ -58,21 +83,42 @@ func MakeFft(_log_n int) string {
 			for r := uint(0); r < n; r += m {
 				a := r + j
 				b := a + c
-				out += fmt.Sprintf(`
-				u, v = x[%d], x[%d]
-				x[%d] = mod_add(u, v)
-                                u = mod_sub(u, v)
-				x[%d] = %s`, a, b, a, b, make_mod_mul("u", w))
+				fmt.Fprintf(out, "x[%d], x[%d] = %s\n", a, b, make_butterfly(a, b, w))
 			}
 			w = mod_mul(w, d)
 		}
 		d = mod_mul(d, d)
 	}
-	return out
+	return out.String()
 }
 
-func MakeInvFft(n int) string {
-	return fmt.Sprintf("// InvFft %d", n)
+func MakeInvFft(_log_n int) string {
+	log_n := uint8(_log_n)
+	if log_n == 0 {
+		return ""
+	}
+	n := uint(1) << log_n
+	mod_w := mod_pow(7, (MOD_P-1)/uint64(n))
+	mod_w = mod_pow(mod_w, 5)
+	mod_invw := mod_inv(mod_w)
+
+	out := new(bytes.Buffer)
+	for k := uint8(1); k <= log_n; k++ {
+		m := uint(1) << k
+		c := m >> 1
+		z := uint64(1 << (log_n - k))
+		d := mod_pow(mod_invw, z)
+		w := uint64(1)
+		for j := uint(0); j < c; j++ {
+			for r := uint(0); r < n; r += m {
+				a := r + j
+				b := a + c
+				fmt.Fprintf(out, "x[%d], x[%d] = %s\n", a, b, make_invbutterfly(a, b, w))
+			}
+			w = mod_mul(w, d)
+		}
+	}
+	return out.String()
 }
 
 func main() {
@@ -93,19 +139,60 @@ var program = `
 
 package main
 
+func butterfly_null(a, b uint64) (u, v uint64) {
+	u = mod_add(a, b)
+	v = mod_sub(a, b)
+	return
+}
+
+func butterfly_shift(a, b uint64, shift uint8) (u, v uint64) {
+	u = mod_add(a, b)
+	v = mod_shift(mod_sub(a, b), shift)
+	return
+}
+
+func butterfly_mul(a, b uint64, w uint64) (u, v uint64) {
+	u = mod_add(a, b)
+	v = mod_mul(mod_sub(a, b), w)
+	return
+}
+
+func invbutterfly_null(a, b uint64) (u, v uint64) {
+	u = mod_add(a, b)
+	v = mod_sub(a, b)
+	return
+}
+
+// This effectively shifts shift+96
+// Note signs reversed in the butterfly since 2^96 mod p = -1
+func invbutterfly_shift(a, b uint64, shift uint8) (u, v uint64) {
+	b = mod_shift(b, shift)
+	u = mod_sub(a, b)
+	v = mod_add(a, b)
+	return
+}
+
+func invbutterfly_mul(a, b uint64, w uint64) (u, v uint64) {
+	b = mod_mul(b, w)
+	u = mod_add(a, b)
+	v = mod_sub(a, b)
+	return
+}
+
+
 {{ range $size := . }}
 // Fft for size 2**{{$size}}
 //
 // This is an in place FFT with a bit reversed output
 func fft{{$size}}(x []uint64) {
-	{{ Fft $size }}
+{{ Fft $size }}
 }
 
 // InvFft for size 2**{{$size}}
 //
 // This is an in place Inverse FFT with a bit reversed input
 func invfft{{$size}}(x []uint64) {
-	{{ InvFft $size }}
+{{ InvFft $size }}
 }
 {{ end }}
 `

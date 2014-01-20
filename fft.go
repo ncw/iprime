@@ -338,16 +338,18 @@ func NewFftFourStep(log_n uint8) *FftFourStep {
 	f.log_cols = f.log_n - f.log_rows
 	f.rows = 1 << f.log_rows
 	f.cols = 1 << f.log_cols
-	if f.log_cols <= 6 {
-		f.row_fft = NewFftShift(f.log_cols)
-	} else {
-		f.row_fft = NewFftFastish(f.log_cols)
-	}
-	if f.log_rows <= 6 {
-		f.col_fft = NewFftShift(f.log_rows)
-	} else {
-		f.col_fft = NewFftFastish(f.log_rows)
-	}
+	f.row_fft = NewFftUnrolled(f.log_cols)
+	f.col_fft = NewFftUnrolled(f.log_rows)
+	// if f.log_cols <= 6 {
+	// 	f.row_fft = NewFftShift(f.log_cols)
+	// } else {
+	// 	f.row_fft = NewFftFastish(f.log_cols)
+	// }
+	// if f.log_rows <= 6 {
+	// 	f.col_fft = NewFftShift(f.log_rows)
+	// } else {
+	// 	f.col_fft = NewFftFastish(f.log_rows)
+	// }
 
 	// Make the twiddles
 	ddw := f.MOD_W

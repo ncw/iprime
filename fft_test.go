@@ -120,12 +120,11 @@ func testFastishVsUnrolled(t *testing.T) {
 	fastish.Fft(y)
 	compare(t, "Fastish vs Unrolled")
 
-	// FIXME
-	// copy(x, rnd)
-	// fastish.InvFft(x)
-	// copy(y, rnd)
-	// unrolled.InvFft(y)
-	// compare(t, "Inv Fastish vs Unrolled")
+	copy(x, rnd)
+	fastish.InvFft(x)
+	copy(y, rnd)
+	unrolled.InvFft(y)
+	compare(t, "Inv Fastish vs Unrolled")
 }
 
 func testFastishVsFourStep(t *testing.T) {
