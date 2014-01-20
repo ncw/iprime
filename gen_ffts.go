@@ -21,7 +21,13 @@ import (
 	"text/template"
 )
 
-var FftSizes = []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10} //,11,12}
+var Data = struct {
+	FftSizes []int
+	Shifts   []int
+}{
+	FftSizes: []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, //,11,12}
+	Shifts:   []int{3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36, 39, 42, 45, 48, 51, 54, 57, 60, 63, 66, 69, 72, 75, 78, 81, 84, 87, 90, 93},
+}
 
 var PowersOfTwo = make([]uint64, 193)
 
@@ -42,7 +48,7 @@ func make_butterfly(a, b uint, w uint64) string {
 	}
 	for i, x := range PowersOfTwo {
 		if x == w {
-			return fmt.Sprintf("butterfly_shift(x[%d], x[%d], %d)", a, b, i)
+			return fmt.Sprintf("butterfly_shift%d(x[%d], x[%d])", i, a, b)
 		}
 	}
 	return fmt.Sprintf("butterfly_mul(x[%d], x[%d], %d)", a, b, w)
@@ -58,7 +64,7 @@ func make_invbutterfly(a, b uint, w uint64) string {
 	for i, x := range PowersOfTwo {
 		if x == w {
 			// Since 2^96 mod p = -1, we subtract -1 and use a negative butterfly
-			return fmt.Sprintf("invbutterfly_shift(x[%d], x[%d], %d)", a, b, i-96)
+			return fmt.Sprintf("invbutterfly_shift%d(x[%d], x[%d])", i-96, a, b)
 		}
 	}
 	return fmt.Sprintf("invbutterfly_mul(x[%d], x[%d], %d)", a, b, w)
@@ -126,7 +132,7 @@ func main() {
 		"Fft":    MakeFft,
 		"InvFft": MakeInvFft,
 	}).Parse(program))
-	if err := t.Execute(os.Stdout, FftSizes); err != nil {
+	if err := t.Execute(os.Stdout, Data); err != nil {
 		log.Fatal(err)
 	}
 }
@@ -145,11 +151,13 @@ func butterfly_null(a, b uint64) (u, v uint64) {
 	return
 }
 
-func butterfly_shift(a, b uint64, shift uint8) (u, v uint64) {
+{{ range .Shifts }}
+func butterfly_shift{{.}}(a, b uint64) (u, v uint64) {
 	u = mod_add(a, b)
-	v = mod_shift(mod_sub(a, b), shift)
+	v = mod_shift{{.}}(mod_sub(a, b))
 	return
 }
+{{ end }}
 
 func butterfly_mul(a, b uint64, w uint64) (u, v uint64) {
 	u = mod_add(a, b)
@@ -163,14 +171,16 @@ func invbutterfly_null(a, b uint64) (u, v uint64) {
 	return
 }
 
+{{ range .Shifts }}
 // This effectively shifts shift+96
 // Note signs reversed in the butterfly since 2^96 mod p = -1
-func invbutterfly_shift(a, b uint64, shift uint8) (u, v uint64) {
-	b = mod_shift(b, shift)
+func invbutterfly_shift{{.}}(a, b uint64) (u, v uint64) {
+	b = mod_shift{{.}}(b)
 	u = mod_sub(a, b)
 	v = mod_add(a, b)
 	return
 }
+{{ end }}
 
 func invbutterfly_mul(a, b uint64, w uint64) (u, v uint64) {
 	b = mod_mul(b, w)
@@ -180,7 +190,7 @@ func invbutterfly_mul(a, b uint64, w uint64) (u, v uint64) {
 }
 
 
-{{ range $size := . }}
+{{ range $size := .FftSizes }}
 // Fft for size 2**{{$size}}
 //
 // This is an in place FFT with a bit reversed output

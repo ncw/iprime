@@ -210,8 +210,89 @@ func TestModShift(t *testing.T) {
 	C := new(big.Int)
 	for _, a := range numbers {
 		A.SetUint64(a)
-		for b := uint8(0); b < 64; b++ {
+		for b := uint8(0); b < 96; b++ {
 			c := mod_shift(a, b)
+			C.Lsh(A, uint(b))
+			C.Mod(C, P)
+			expected := C.Uint64()
+			if c != expected {
+				t.Fatalf("%d >> %d: Expecting %d but got %d", a, b, expected, c)
+			}
+		}
+	}
+}
+
+func TestModShifts(t *testing.T) {
+	A := new(big.Int)
+	C := new(big.Int)
+	for _, a := range numbers {
+		A.SetUint64(a)
+		for b := uint8(3); b < 96; b += 3 {
+			var c uint64
+			switch b {
+			case 3:
+				c = mod_shift3(a)
+			case 6:
+				c = mod_shift6(a)
+			case 9:
+				c = mod_shift9(a)
+			case 12:
+				c = mod_shift12(a)
+			case 15:
+				c = mod_shift15(a)
+			case 18:
+				c = mod_shift18(a)
+			case 21:
+				c = mod_shift21(a)
+			case 24:
+				c = mod_shift24(a)
+			case 27:
+				c = mod_shift27(a)
+			case 30:
+				c = mod_shift30(a)
+			case 33:
+				c = mod_shift33(a)
+			case 36:
+				c = mod_shift36(a)
+			case 39:
+				c = mod_shift39(a)
+			case 42:
+				c = mod_shift42(a)
+			case 45:
+				c = mod_shift45(a)
+			case 48:
+				c = mod_shift48(a)
+			case 51:
+				c = mod_shift51(a)
+			case 54:
+				c = mod_shift54(a)
+			case 57:
+				c = mod_shift57(a)
+			case 60:
+				c = mod_shift60(a)
+			case 63:
+				c = mod_shift63(a)
+			case 66:
+				c = mod_shift66(a)
+			case 69:
+				c = mod_shift69(a)
+			case 72:
+				c = mod_shift72(a)
+			case 75:
+				c = mod_shift75(a)
+			case 78:
+				c = mod_shift78(a)
+			case 81:
+				c = mod_shift81(a)
+			case 84:
+				c = mod_shift84(a)
+			case 87:
+				c = mod_shift87(a)
+			case 90:
+				c = mod_shift90(a)
+			case 93:
+				c = mod_shift93(a)
+			}
 			C.Lsh(A, uint(b))
 			C.Mod(C, P)
 			expected := C.Uint64()
