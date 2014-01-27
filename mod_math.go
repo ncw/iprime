@@ -137,42 +137,6 @@ func mod_adc(x uint64, width uint8, carry *uint64) uint64 {
 	return sum & (((uint64(1)) << width) - 1)
 }
 
-// Mod Square
-//
-// x,y must be in range 0..p-1
-// z will be in range 0..p-1
-func mod_sqr(x uint64) uint64 {
-	x0 := uint32(x)
-	x1 := uint32(x >> 32)
-
-	// first synthesize the square using 32*32 -> 64 bit multiplies
-	r0 := uint64(x0) * uint64(x0) // x0*x0
-	r1 := uint64(x1) * uint64(x0) // x1*x0
-	r2 := uint64(x1) * uint64(x1) // x1*x1
-
-	t := r1 + r1 // 2*x1*x0
-	// carry?
-	if t < r1 {
-		// carry into upper 32 bits - can't overflow
-		r2 += 1 << 32
-	}
-	r1 = t
-
-	t = r1 << 32
-	r0 += t // x0*x0 + LSW(2*x1*x0)
-	// carry?
-	if r0 < t {
-		// carry into upper 64 bits - can't overflow
-		r2 += 1
-	}
-	t = r1 >> 32
-	r2 += t // x1*x1 + MSW(2*x1*x0)
-	// can't overflow
-
-	// now reduce: (x1*x1 + MSW(2*x1*x0), x0*x0 + LSW(2*x1*x0))
-	return mod_reduce(r2, r0)
-}
-
 // Shift a value (multiply by 2^shift).
 //
 // For shifts 0..31 bits

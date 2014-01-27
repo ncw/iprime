@@ -19,3 +19,7 @@ func mod_reduce(b, a uint64) (ret uint64)
 //go:noescape
 
 func mod_mul(x, y uint64) (ret uint64)
+
+//go:noescape
+
+func mod_sqr(x uint64) (ret uint64)

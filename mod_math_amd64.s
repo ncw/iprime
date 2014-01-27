@@ -32,9 +32,7 @@ TEXT ·mod_add(SB),7,$0-24
 // Reduce 128 bits mod p (b, a) -> a
 // Using t0, t1
 #define MOD_REDUCE(b, a, t0, t1, p, label) \
-        MOVQ    $0, t0 ; \
-        MOVL    b, t0;	/* MOVQL   b, t0 ? */ \
- ; \
+        MOVL    b, t0;	/* Also sets upper 32 bits to 0 */ \
 	SHRQ    $32,b ; \
  ; \
 	CMPQ    a,p ; \
@@ -68,4 +66,12 @@ TEXT ·mod_mul(SB),7,$0-24
         MULQ	BX /* BX * AX -> (DX, AX) */
         MOD_REDUCE(DX, AX, SI, BX, R8, mod_mul)
 	MOVQ    AX,ret+16(FP)
+	RET 
+
+TEXT ·mod_sqr(SB),7,$0-16
+	MOVQ    x+0(FP),AX
+	MOVQ    $-4294967295,R8
+        MULQ	AX /* AX * AX -> (DX, AX) */
+        MOD_REDUCE(DX, AX, SI, BX, R8, mod_sqr)
+	MOVQ    AX,ret+8(FP)
 	RET 
