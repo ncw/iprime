@@ -231,7 +231,8 @@ func TestModShifts(t *testing.T) {
 			var c uint64
 			switch b {
 			case 3:
-				c = mod_shift3(a)
+				//c = mod_shift3(a)
+				c = mod_shift0to31x3(a)
 			case 6:
 				c = mod_shift6(a)
 			case 9:
@@ -253,7 +254,8 @@ func TestModShifts(t *testing.T) {
 			case 33:
 				c = mod_shift33(a)
 			case 36:
-				c = mod_shift36(a)
+				//c = mod_shift36(a)
+				c = mod_shift32to63x36(a)
 			case 39:
 				c = mod_shift39(a)
 			case 42:
@@ -278,6 +280,7 @@ func TestModShifts(t *testing.T) {
 				c = mod_shift69(a)
 			case 72:
 				c = mod_shift72(a)
+				c = mod_shift64to95x72(a)
 			case 75:
 				c = mod_shift75(a)
 			case 78:
@@ -300,6 +303,33 @@ func TestModShifts(t *testing.T) {
 				t.Fatalf("%d >> %d: Expecting %d but got %d", a, b, expected, c)
 			}
 		}
+	}
+}
+
+func BenchmarkModShift3(b *testing.B) {
+	b.StopTimer()
+	x := mod_rnd()
+	b.StartTimer()
+	for i := 0; i < b.N; i++ {
+		x = mod_shift0to31x3(x)
+	}
+}
+
+func BenchmarkModShift36(b *testing.B) {
+	b.StopTimer()
+	x := mod_rnd()
+	b.StartTimer()
+	for i := 0; i < b.N; i++ {
+		x = mod_shift32to63x36(x)
+	}
+}
+
+func BenchmarkModShift72(b *testing.B) {
+	b.StopTimer()
+	x := mod_rnd()
+	b.StartTimer()
+	for i := 0; i < b.N; i++ {
+		x = mod_shift64to95x72(x)
 	}
 }
 
