@@ -174,3 +174,4 @@ TEXT ·mod_shift64to95x72(SB),7,$0-16
 	MOVQ    AX,ret+8(FP)
 	RET 
 
+#include "ffts_amd64.h"

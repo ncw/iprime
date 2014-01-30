@@ -282,15 +282,15 @@ func NewFftUnrolled(log_n uint8) *FftUnrolled {
 	case 7:
 		f.fft = fft7
 		f.invfft = invfft7
-	// case 8:
-	// 	f.fft = fft8
-	// 	f.invfft = invfft8
-	// case 9:
-	// 	f.fft = fft9
-	// 	f.invfft = invfft9
-	// case 10:
-	// 	f.fft = fft10
-	// 	f.invfft = invfft10
+	case 8:
+		f.fft = fft8
+		f.invfft = invfft8
+	case 9:
+		f.fft = fft9
+		f.invfft = invfft9
+	case 10:
+		f.fft = fft10
+		f.invfft = invfft10
 	default:
 		panic(fmt.Sprintf("Don't have unrolled fft for log_n = %d", log_n))
 	}
