@@ -12,13 +12,15 @@ import (
 	"os"
 	"runtime/pprof"
 	"strconv"
+	"time"
 )
 
 // Globals
 var (
 	// Flags
-	cpuprofile = flag.String("cpuprofile", "", "Write cpu profile to file")
-	iterations = flag.Uint64("iterations", 0, "Number of iterations to check run - 0 for full test")
+	cpuprofile   = flag.String("cpuprofile", "", "Write cpu profile to file")
+	iterations   = flag.Uint64("iterations", 0, "Number of iterations to check run - 0 for full test")
+	min_fft_size = flag.Uint("fft-size", 0, "minimum size for FFT (2**n)")
 )
 
 // Data for mersenne primality checking
@@ -41,7 +43,7 @@ type Mersenne struct {
 
 // Make a new Mersenne prime checker
 //
-// Call Init or AutoInit before using
+// Call Init or AutoInitialise before using
 func NewMersenne() *Mersenne {
 	return new(Mersenne)
 }
@@ -144,8 +146,8 @@ func (m *Mersenne) Initialise(log_n uint8, exponent uint64) bool {
 // Calls Initialise with increasing sizes until we find a bit enough FFT size
 //
 // Returns m passed in for chaining
-func (m *Mersenne) AutoInitialise(exponent uint64) *Mersenne {
-	for log_n := uint8(0); log_n <= 26; log_n++ {
+func (m *Mersenne) AutoInitialise(min_log_n uint8, exponent uint64) *Mersenne {
+	for log_n := min_log_n; log_n <= 26; log_n++ {
 		if m.Initialise(log_n, exponent) {
 			return m
 		}
@@ -275,7 +277,7 @@ func (m *Mersenne) Mul() {
 }
 
 // Sets the mersenne array up and runs it for the number of iterations asked for
-func (m *Mersenne) Run(iterations uint64) {
+func (m *Mersenne) Run(iterations uint64) uint64 {
 	if iterations == 0 {
 		iterations = m.exponent - 2
 	}
@@ -283,6 +285,7 @@ func (m *Mersenne) Run(iterations uint64) {
 	for i := uint64(0); i < iterations; i++ {
 		m.Mul()
 	}
+	return iterations
 }
 
 // syntaxError prints the syntax
@@ -325,9 +328,15 @@ func main() {
 		log.Fatalf("Couldn't parse exponent: %v\n", err)
 	}
 
-	m := NewMersenne().AutoInitialise(exponent)
+	m := NewMersenne().AutoInitialise(uint8(*min_fft_size), exponent)
 
 	fmt.Printf("Testing 2**%d-1 with fft size 2**%d for %d iterations\n", m.exponent, m.log_n, *iterations)
-	m.Run(*iterations)
+	start := time.Now()
+	done := m.Run(*iterations)
+	end := time.Now()
 	fmt.Printf("Residue 0x%016X\n", m.Residue())
+	dt := end.Sub(start)
+	iterationTime := dt / time.Duration(done)
+	fmt.Printf("That took %v for %d iterations which is %v per iteration\n", dt, done, iterationTime)
+
 }

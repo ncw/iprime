@@ -89,7 +89,7 @@ func TestMersenneResidues(t *testing.T) {
 		test := residues[i]
 		exponent := test.exponent
 		t.Logf("Testing residue from 2**%d-1 after 400 iterations", exponent)
-		m := NewMersenne().AutoInitialise(exponent)
+		m := NewMersenne().AutoInitialise(0, exponent)
 		m.Run(400)
 		residue := m.Residue()
 		bit_32_to_bit_63_residue := uint32(residue >> 32)
@@ -107,7 +107,7 @@ func TestMersennePrimes(t *testing.T) {
 	for i := 1; i < to_test; i++ {
 		exponent := known_primes[i]
 		t.Logf("Testing 2**%d-1 for primality", exponent)
-		m := NewMersenne().AutoInitialise(exponent)
+		m := NewMersenne().AutoInitialise(0, exponent)
 		m.Run(0)
 		residue := m.Residue()
 		if residue != 0 {

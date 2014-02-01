@@ -1,11 +1,21 @@
-Read times to check each prime in, make formula then extrapolate.
-Graph cycle time?
+Try FFT strategy from FFTW - recursive depth first
+Use the 64 point FFTs we have already
+But make them out of place and in order
+Will need to investigate prefetch
 
-Remove loop around mersenne_initialise - should be able to calculate the fft size straight off
-for p, need n such that ceil(n/p)*2+log2(n) <= 63?
+http://cnx.org/content/m16336/latest/
 
 FIXME could use top bit of each fft element as a guard bit?  There should never be an overflow into it
 Could then test by squaring 2^p-1
+
+Results from ARM Prime on 200 MHz StrongARM
+
+./mersenne 23209 10
+Testing 2**23209-1 with fft size 2**10 for 23207 iterations
+Initialising...Done
+Testing exponent 23209
+That took 27.4 seconds for 23207 iterations, ie 0.00118068 seconds/iteration
+Residue is 0x0000000000000000
 
 p, time (s)
 31, 0.002
@@ -34,9 +44,3 @@ p, time (s)
 216091, 1631.627
 756839, 12676.713
 
-./mersenne 23209 10
-Testing 2**23209-1 with fft size 2**10 for 23207 iterations
-Initialising...Done
-Testing exponent 23209
-That took 27.4 seconds for 23207 iterations, ie 0.00118068 seconds/iteration
-Residue is 0x0000000000000000
