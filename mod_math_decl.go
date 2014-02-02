@@ -24,17 +24,38 @@ func mod_mul(x, y uint64) (ret uint64)
 
 func mod_sqr(x uint64) (ret uint64)
 
-//go:noescape
 
-func mod_shift0to31x3(x uint64) (ret uint64)
-
-//go:noescape
-
-func mod_shift32to63x36(x uint64) (ret uint64)
-
-//go:noescape
-
-func mod_shift64to95x72(x uint64) (ret uint64)
+func mod_shift3(x uint64) (ret uint64)
+func mod_shift6(x uint64) (ret uint64)
+func mod_shift9(x uint64) (ret uint64)
+func mod_shift12(x uint64) (ret uint64)
+func mod_shift15(x uint64) (ret uint64)
+func mod_shift18(x uint64) (ret uint64)
+func mod_shift21(x uint64) (ret uint64)
+func mod_shift24(x uint64) (ret uint64)
+func mod_shift27(x uint64) (ret uint64)
+func mod_shift30(x uint64) (ret uint64)
+func mod_shift33(x uint64) (ret uint64)
+func mod_shift36(x uint64) (ret uint64)
+func mod_shift39(x uint64) (ret uint64)
+func mod_shift42(x uint64) (ret uint64)
+func mod_shift45(x uint64) (ret uint64)
+func mod_shift48(x uint64) (ret uint64)
+func mod_shift51(x uint64) (ret uint64)
+func mod_shift54(x uint64) (ret uint64)
+func mod_shift57(x uint64) (ret uint64)
+func mod_shift60(x uint64) (ret uint64)
+func mod_shift63(x uint64) (ret uint64)
+func mod_shift66(x uint64) (ret uint64)
+func mod_shift69(x uint64) (ret uint64)
+func mod_shift72(x uint64) (ret uint64)
+func mod_shift75(x uint64) (ret uint64)
+func mod_shift78(x uint64) (ret uint64)
+func mod_shift81(x uint64) (ret uint64)
+func mod_shift84(x uint64) (ret uint64)
+func mod_shift87(x uint64) (ret uint64)
+func mod_shift90(x uint64) (ret uint64)
+func mod_shift93(x uint64) (ret uint64)
 
 func fft0(x []uint64)
 func fft1(x []uint64)

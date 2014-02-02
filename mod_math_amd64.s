@@ -107,14 +107,33 @@ TEXT ·mod_sqr(SB),7,$0-16
 	/* r := xmid_xlow - t, (xmid, xlow) + (xhigh, -xhigh) */ \
         MOD_ADD(x, t0, t1, p, label); \
 
-TEXT ·mod_shift0to31x3(SB),7,$0-16
-	MOVQ    x+0(FP),AX
-	MOVQ    $MOD_P,R8
+#define MOD_SHIFT_0_TO_31_PROC(shift) \
+	MOVQ    x+0(FP),AX; \
+	MOVQ    $MOD_P,R8; \
+        MOD_SHIFT_0_TO_31(AX, shift, BX, CX, R8, mod_shift/**/shift/**/a); \
+	MOVQ    AX,ret+8(FP); \
+	RET ; \
 
-        MOD_SHIFT_0_TO_31(AX, 3, BX, CX, R8, mod_shift)
-
-	MOVQ    AX,ret+8(FP)
-	RET 
+TEXT ·mod_shift3(SB),7,$0-16
+	MOD_SHIFT_0_TO_31_PROC(3)
+TEXT ·mod_shift6(SB),7,$0-16
+	MOD_SHIFT_0_TO_31_PROC(6)
+TEXT ·mod_shift9(SB),7,$0-16
+	MOD_SHIFT_0_TO_31_PROC(9)
+TEXT ·mod_shift12(SB),7,$0-16
+	MOD_SHIFT_0_TO_31_PROC(12)
+TEXT ·mod_shift15(SB),7,$0-16
+	MOD_SHIFT_0_TO_31_PROC(15)
+TEXT ·mod_shift18(SB),7,$0-16
+	MOD_SHIFT_0_TO_31_PROC(18)
+TEXT ·mod_shift21(SB),7,$0-16
+	MOD_SHIFT_0_TO_31_PROC(21)
+TEXT ·mod_shift24(SB),7,$0-16
+	MOD_SHIFT_0_TO_31_PROC(24)
+TEXT ·mod_shift27(SB),7,$0-16
+	MOD_SHIFT_0_TO_31_PROC(27)
+TEXT ·mod_shift30(SB),7,$0-16
+	MOD_SHIFT_0_TO_31_PROC(30)
 
 #define MOD_SHIFT_32_TO_63(x, shift, t0, t1, t2, p, label) \
         MOVQ x, t0; \
@@ -138,15 +157,35 @@ TEXT ·mod_shift0to31x3(SB),7,$0-16
 	/* add (xlow, 0) */ \
         MOD_ADD(x, t1, t0, p, label/**/2); \
 
-        
-TEXT ·mod_shift32to63x36(SB),7,$0-16
-	MOVQ    x+0(FP),AX
-	MOVQ    $MOD_P,R8
+#define MOD_SHIFT_32_TO_63_PROC(shift) \
+	MOVQ    x+0(FP),AX; \
+	MOVQ    $MOD_P,R8; \
+        MOD_SHIFT_32_TO_63(AX, shift, BX, CX, DX, R8, mod_shift/**/shift/**/a); \
+	MOVQ    AX,ret+8(FP); \
+	RET ; \
 
-        MOD_SHIFT_32_TO_63(AX, 36, BX, CX, DX, R8, mod_shift36)
-
-	MOVQ    AX,ret+8(FP)
-	RET 
+TEXT ·mod_shift33(SB),7,$0-16
+	MOD_SHIFT_32_TO_63_PROC(33)
+TEXT ·mod_shift36(SB),7,$0-16
+	MOD_SHIFT_32_TO_63_PROC(36)
+TEXT ·mod_shift39(SB),7,$0-16
+	MOD_SHIFT_32_TO_63_PROC(39)
+TEXT ·mod_shift42(SB),7,$0-16
+	MOD_SHIFT_32_TO_63_PROC(42)
+TEXT ·mod_shift45(SB),7,$0-16
+	MOD_SHIFT_32_TO_63_PROC(45)
+TEXT ·mod_shift48(SB),7,$0-16
+	MOD_SHIFT_32_TO_63_PROC(48)
+TEXT ·mod_shift51(SB),7,$0-16
+	MOD_SHIFT_32_TO_63_PROC(51)
+TEXT ·mod_shift54(SB),7,$0-16
+	MOD_SHIFT_32_TO_63_PROC(54)
+TEXT ·mod_shift57(SB),7,$0-16
+	MOD_SHIFT_32_TO_63_PROC(57)
+TEXT ·mod_shift60(SB),7,$0-16
+	MOD_SHIFT_32_TO_63_PROC(60)
+TEXT ·mod_shift63(SB),7,$0-16
+	MOD_SHIFT_32_TO_63_PROC(63)
 
 #define MOD_SHIFT_64_TO_95(x, shift, t0, t1, p, label) \
         MOVQ x, t0; \
@@ -165,13 +204,32 @@ TEXT ·mod_shift32to63x36(SB),7,$0-16
 	/* r := t0 - t1, (xlow, -xlow) - (xhigh, xmid) */ \
         MOD_SUB(x, t0, p, label); \
 
-TEXT ·mod_shift64to95x72(SB),7,$0-16
-	MOVQ    x+0(FP),AX
-	MOVQ    $MOD_P,R8
+#define MOD_SHIFT_64_TO_95_PROC(shift) \
+	MOVQ    x+0(FP),AX; \
+	MOVQ    $MOD_P,R8; \
+        MOD_SHIFT_64_TO_95(AX, shift, BX, CX, R8, mod_shift/**/shift/**/a); \
+	MOVQ    AX,ret+8(FP); \
+	RET ; \
 
-        MOD_SHIFT_64_TO_95(AX, 72, BX, CX, R8, mod_shift72)
-
-	MOVQ    AX,ret+8(FP)
-	RET 
+TEXT ·mod_shift66(SB),7,$0-16
+	MOD_SHIFT_64_TO_95_PROC(66)
+TEXT ·mod_shift69(SB),7,$0-16
+	MOD_SHIFT_64_TO_95_PROC(69)
+TEXT ·mod_shift72(SB),7,$0-16
+	MOD_SHIFT_64_TO_95_PROC(72)
+TEXT ·mod_shift75(SB),7,$0-16
+	MOD_SHIFT_64_TO_95_PROC(75)
+TEXT ·mod_shift78(SB),7,$0-16
+	MOD_SHIFT_64_TO_95_PROC(78)
+TEXT ·mod_shift81(SB),7,$0-16
+	MOD_SHIFT_64_TO_95_PROC(81)
+TEXT ·mod_shift84(SB),7,$0-16
+	MOD_SHIFT_64_TO_95_PROC(84)
+TEXT ·mod_shift87(SB),7,$0-16
+	MOD_SHIFT_64_TO_95_PROC(87)
+TEXT ·mod_shift90(SB),7,$0-16
+	MOD_SHIFT_64_TO_95_PROC(90)
+TEXT ·mod_shift93(SB),7,$0-16
+	MOD_SHIFT_64_TO_95_PROC(93)
 
 #include "ffts_amd64.h"

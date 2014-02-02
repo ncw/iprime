@@ -2,7 +2,7 @@
 
 // Generate shifts.go like this
 //
-// go run mod_math.go gen_shifts.go | gofmt >shifts.go
+// go run mod_math.go mod_math_noasm.go gen_shifts.go | gofmt >shifts.go
 package main
 
 import (
@@ -27,6 +27,8 @@ func main() {
 var program = `
 // Automatically generated - DO NOT EDIT
 // Regenerate with: go run mod_math.go gen_shifts.go | gofmt >shifts.go
+
+// +build !amd64
 
 // Unrolled mod_shifts
 
