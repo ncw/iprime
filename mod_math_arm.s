@@ -190,11 +190,11 @@ label:		SUB.CC.S	neg1, z0, z0		/* if no carry (x1,x0) -= (0,2^32-1) */; \
 
 // 4 words at 4..16(R13) for called routine parameters
 TEXT ·mod_reduce(SB),7,$0-24
-	MOVW	$-1, R12
 	MOVM.IB	(R13),[R0,R1,R2,R3]
-        MOD_REDUCE(R0,R1,R2,R3, R12, mod_reduce)
-	MOVW	R4, ret+16(FP)
-	MOVW	R5, ret+20(FP)
+	MOVW	$-1, R12
+        MOD_REDUCE(R2,R3,R0,R1, R12, mod_reduce)
+	MOVW	R2, ret+16(FP)
+	MOVW	R3, ret+20(FP)
 	RET 
 
 //------------------------------------------------------------
@@ -221,12 +221,12 @@ TEXT ·mod_reduce(SB),7,$0-24
 // 64 x 64 -> 128 bit multiply - takes 22 cycles
 // (x1,x0) * (y1,y0) -> (z3, z2, z1, z0)
 #define	MOD_MUL(z0,z1, x0,x1, y0,y1, z2,z3,t0, neg1, label) \
-		MULLU	y0, x0, (z0, z1)	/* odd order is to reduce pipeline stalls */; \
-		MULLU	y0, x1, (y0, t0)	/* [not z0 or z1] */; \
-		MULLU	y1, x1, (z2, z3)	/* [not y0 or t0] */; \
+		MULLU	y0, x0, (z1, z0)	/* odd order is to reduce pipeline stalls */; \
+		MULLU	y0, x1, (t0, y0)	/* [not z0 or z1] */; \
+		MULLU	y1, x1, (z3, z2)	/* [not y0 or t0] */; \
 		ADD.S	y0, z1, z1		/* [not z2 or z3] */; \
 		ADC.S	t0, z2, z2		; \
-		MULLU	y1, x0, (y0, t0)	; \
+		MULLU	y1, x0, (t0, y0)	; \
 		ADC	$0, z3, z3 		/* [not y0 or t0] */; \
 		ADD.S	y0, z1, z1		; \
 		ADC.S	t0, z2, z2		; \
@@ -265,9 +265,9 @@ TEXT ·mod_mul(SB),7,$0-24
 // 64 x 64 -> 128 bit square - takes 18 cycles
 // (x1,x0) * (x1,x0) -> (z3, z2, z1, z0)
 #define MOD_SQR(z0,z1, x0,x1, z2,z3,t0, neg1, label) \
-		MULLU	x0, x0, (z0, z1)	/* odd order is to reduce pipeline stalls */	; \
-		MULLU	x0, x1, (x0, t0)	/* [not z0 or z1] */	; \
-		MULLU	x1, x1, (z2, z3)	/* [not x0 or t0] */	; \
+		MULLU	x0, x0, (z1, z0)	/* odd order is to reduce pipeline stalls */	; \
+		MULLU	x0, x1, (t0, x0)	/* [not z0 or z1] */	; \
+		MULLU	x1, x1, (z3, z2)	/* [not x0 or t0] */	; \
 		ADD.S	x0, z1, z1	/* [not z2 or z3] */	; \
 		ADC.S	t0, z2, z2	; \
 		ADC	$0, z3, z3	; \
@@ -276,13 +276,13 @@ TEXT ·mod_mul(SB),7,$0-24
 		ADC	$0, z3, z3	; \
 		MOD_REDUCE(z0, z1, z2, z3, neg1, label); \
 
-// 4 words at 4..20(R13) for called routine parameters
+// 2 words at 4..12(R13) for called routine parameters
 TEXT ·mod_sqr(SB),7,$0-24
 	MOVW	$-1, R12
-	MOVM.IB	(R13),[R0,R1,R2,R3]
+	MOVM.IB	(R13),[R0,R1]
         MOD_SQR(R4,R5, R0,R1, R2,R3,R6, R12, mod_sqr)
-	MOVW	R4, ret+16(FP)
-	MOVW	R5, ret+20(FP)
+	MOVW	R4, ret+8(FP)
+	MOVW	R5, ret+12(FP)
 	RET 
 
 //------------------------------------------------------------
@@ -317,9 +317,9 @@ TEXT ·mod_sqr(SB),7,$0-24
 
 #define MOD_SHIFT_0_TO_31_PROC(shift) \
 	MOVW	$-1, R12	; \
-	MOVW	$0, R14	; \
+	MOVW	$0, R11	; \
 	MOVM.IB	(R13),[R0,R1]	; \
-        MOD_SHIFT_0_TO_31(shift, R4, R5, R0, R1, R12, R14)	; \
+        MOD_SHIFT_0_TO_31(shift, R4, R5, R0, R1, R12, R11)	; \
 	MOVW	R4, ret+8(FP)	; \
 	MOVW	R5, ret+12(FP)	; \
 	RET			; \
@@ -447,9 +447,9 @@ TEXT ·mod_shift63(SB),7,$0-16
 
 #define MOD_SHIFT_64_TO_95_PROC(shift) \
 	MOVW	$-1, R12	; \
-	MOVW	$0, R14	; \
+	MOVW	$0, R11	; \
 	MOVM.IB	(R13),[R0,R1]	; \
-        MOD_SHIFT_64_TO_95(shift, R4, R5, R0, R1, R12, R14)	; \
+        MOD_SHIFT_64_TO_95(shift, R4, R5, R0, R1, R12, R11)	; \
 	MOVW	R4, ret+8(FP)	; \
 	MOVW	R5, ret+12(FP)	; \
 	RET			; \
