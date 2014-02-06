@@ -486,7 +486,7 @@ func MakeArmInvFft(_log_n int) string {
 		default:
 			// Since 2^96 mod p = -1, we subtract -1 and use a negative butterfly
 			fmt.Fprintf(out, "\tBL ·invbutterfly_shift%d(SB)\n", i-96)
-			a0, a1, b0, b1 = "R4", "R5", "R0", "R1"
+			a0, a1, b0, b1 = "R6", "R7", "R2", "R3"
 		}
 		fmt.Fprintf(out, "\tMOVW %s, (%d*8+0)(R11)\n", a0, a)
 		fmt.Fprintf(out, "\tMOVW %s, (%d*8+4)(R11)\n", a1, a)
@@ -604,7 +604,7 @@ TEXT ·invbutterfly_shift{{.}}(SB),7,$0-0
 	MOD_SHIFT_64_TO_95({{.}}, R4, R5, R2, R3, R12, R8)
 {{ end }}
 	MOD_SUB(R6, R7, R0, R1, R4, R5, R12)
-	MOD_ADD(R0, R1, R0, R1, R4, R5, R12)
+	MOD_ADD(R2, R3, R0, R1, R4, R5, R12)
 	RET
 {{ end }}
 
