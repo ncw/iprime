@@ -12,6 +12,7 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"os/exec"
@@ -437,13 +438,37 @@ invfft{{$size}}ok:
 {{ end }}
 `
 
+func LDRQ(out io.Writer, r0, r1 string, i uint) {
+	if i*8 < 4096 {
+		fmt.Fprintf(out, "\tMOVW (%d)(R11), %s\n", i*8, r0)
+		fmt.Fprintf(out, "\tMOVW (%d)(R11), %s\n", i*8+4, r1)
+	} else {
+		fmt.Fprintf(out, "\tADD $(%d<<3), R11, R8\n", i&0xFF00)
+		if i&0xFF != 0 {
+			fmt.Fprintf(out, "\tADD $(%d<<3), R8, R8\n", i&0xFF)
+		}
+		fmt.Fprintf(out, "\tMOVM.IA (R8), [%s,%s]\n", r0, r1)
+	}
+}
+
+func STRQ(out io.Writer, r0, r1 string, i uint) {
+	if i*8 < 4096 {
+		fmt.Fprintf(out, "\tMOVW %s, (%d)(R11)\n", r0, i*8)
+		fmt.Fprintf(out, "\tMOVW %s, (%d)(R11)\n", r1, i*8+4)
+	} else {
+		fmt.Fprintf(out, "\tADD $(%d<<3), R11, R8\n", i&0xFF00)
+		if i&0xFF != 0 {
+			fmt.Fprintf(out, "\tADD $(%d<<3), R8, R8\n", i&0xFF)
+		}
+		fmt.Fprintf(out, "\tMOVM.IA [%s,%s], (R8)\n", r0, r1)
+	}
+}
+
 func MakeArmFft(_log_n int) string {
 	out := new(bytes.Buffer)
 	MakeFftGeneric(_log_n, func(a, b uint, w uint64) {
-		fmt.Fprintf(out, "\tMOVW (%d*8+0)(R11), R0\n", a)
-		fmt.Fprintf(out, "\tMOVW (%d*8+4)(R11), R1\n", a)
-		fmt.Fprintf(out, "\tMOVW (%d*8+0)(R11), R2\n", b)
-		fmt.Fprintf(out, "\tMOVW (%d*8+4)(R11), R3\n", b)
+		LDRQ(out, "R0", "R1", a)
+		LDRQ(out, "R2", "R3", b)
 		var a0, a1, b0, b1 string
 		switch i := multiplyType(w); i {
 		case 0:
@@ -458,10 +483,8 @@ func MakeArmFft(_log_n int) string {
 			fmt.Fprintf(out, "\tBL ·butterfly_shift%d(SB)\n", i)
 			a0, a1, b0, b1 = "R4", "R5", "R0", "R1"
 		}
-		fmt.Fprintf(out, "\tMOVW %s, (%d*8+0)(R11)\n", a0, a)
-		fmt.Fprintf(out, "\tMOVW %s, (%d*8+4)(R11)\n", a1, a)
-		fmt.Fprintf(out, "\tMOVW %s, (%d*8+0)(R11)\n", b0, b)
-		fmt.Fprintf(out, "\tMOVW %s, (%d*8+4)(R11)\n", b1, b)
+		STRQ(out, a0, a1, a)
+		STRQ(out, b0, b1, b)
 	})
 	return out.String()
 }
@@ -469,10 +492,8 @@ func MakeArmFft(_log_n int) string {
 func MakeArmInvFft(_log_n int) string {
 	out := new(bytes.Buffer)
 	MakeInvFftGeneric(_log_n, func(a, b uint, w uint64) {
-		fmt.Fprintf(out, "\tMOVW (%d*8+0)(R11), R0\n", a)
-		fmt.Fprintf(out, "\tMOVW (%d*8+4)(R11), R1\n", a)
-		fmt.Fprintf(out, "\tMOVW (%d*8+0)(R11), R2\n", b)
-		fmt.Fprintf(out, "\tMOVW (%d*8+4)(R11), R3\n", b)
+		LDRQ(out, "R0", "R1", a)
+		LDRQ(out, "R2", "R3", b)
 		var a0, a1, b0, b1 string
 		switch i := multiplyType(w); i {
 		case 0:
@@ -488,10 +509,8 @@ func MakeArmInvFft(_log_n int) string {
 			fmt.Fprintf(out, "\tBL ·invbutterfly_shift%d(SB)\n", i-96)
 			a0, a1, b0, b1 = "R6", "R7", "R2", "R3"
 		}
-		fmt.Fprintf(out, "\tMOVW %s, (%d*8+0)(R11)\n", a0, a)
-		fmt.Fprintf(out, "\tMOVW %s, (%d*8+4)(R11)\n", a1, a)
-		fmt.Fprintf(out, "\tMOVW %s, (%d*8+0)(R11)\n", b0, b)
-		fmt.Fprintf(out, "\tMOVW %s, (%d*8+4)(R11)\n", b1, b)
+		STRQ(out, a0, a1, a)
+		STRQ(out, b0, b1, b)
 	})
 	return out.String()
 }
