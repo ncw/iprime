@@ -187,7 +187,7 @@ var program = `
 // Automatically generated - DO NOT EDIT
 // Regenerate with: {{ .Regenerate }}
 
-// +build !amd64
+// +build !amd64,!arm
 
 // Unrolled FFTs
 
@@ -255,7 +255,7 @@ func invfft{{$size}}(x []uint64) {
 {{ end }}
 `
 
-func MakeAsmFft(_log_n int) string {
+func MakeAmd64Fft(_log_n int) string {
 	out := new(bytes.Buffer)
 	MakeFftGeneric(_log_n, func(a, b uint, w uint64) {
 		fmt.Fprintf(out, "\tMOVQ (%d*8)(R12), AX\n", a)
@@ -275,7 +275,7 @@ func MakeAsmFft(_log_n int) string {
 	return out.String()
 }
 
-func MakeAsmInvFft(_log_n int) string {
+func MakeAmd64InvFft(_log_n int) string {
 	out := new(bytes.Buffer)
 	MakeInvFftGeneric(_log_n, func(a, b uint, w uint64) {
 		fmt.Fprintf(out, "\tMOVQ (%d*8)(R12), AX\n", a)
@@ -297,10 +297,10 @@ func MakeAsmInvFft(_log_n int) string {
 }
 
 // Make ffts_amd64.go
-func generateAsmFfts() {
+func generateAmd64Ffts() {
 	t := template.Must(template.New("main").Funcs(template.FuncMap{
-		"Fft":    MakeAsmFft,
-		"InvFft": MakeAsmInvFft,
+		"Fft":    MakeAmd64Fft,
+		"InvFft": MakeAmd64InvFft,
 	}).Parse(amd64Assembler))
 
 	out, err := os.Create("ffts_amd64.h")
@@ -437,7 +437,223 @@ invfft{{$size}}ok:
 {{ end }}
 `
 
+func MakeArmFft(_log_n int) string {
+	out := new(bytes.Buffer)
+	MakeFftGeneric(_log_n, func(a, b uint, w uint64) {
+		fmt.Fprintf(out, "\tMOVW (%d*8+0)(R11), R0\n", a)
+		fmt.Fprintf(out, "\tMOVW (%d*8+4)(R11), R1\n", a)
+		fmt.Fprintf(out, "\tMOVW (%d*8+0)(R11), R2\n", b)
+		fmt.Fprintf(out, "\tMOVW (%d*8+4)(R11), R3\n", b)
+		var a0, a1, b0, b1 string
+		switch i := multiplyType(w); i {
+		case 0:
+			fmt.Fprintf(out, "\tBL ·butterfly_null(SB)\n")
+			a0, a1, b0, b1 = "R4", "R5", "R6", "R7"
+		case -1:
+			fmt.Fprintf(out, "\tMOVW $0x%08X, R4\n", w&0xFFFFFFFF)
+			fmt.Fprintf(out, "\tMOVW $0x%08X, R5\n", (w>>32)&0xFFFFFFFF)
+			fmt.Fprintf(out, "\tBL ·butterfly_mul(SB)\n")
+			a0, a1, b0, b1 = "R6", "R7", "R0", "R1"
+		default:
+			fmt.Fprintf(out, "\tBL ·butterfly_shift%d(SB)\n", i)
+			a0, a1, b0, b1 = "R4", "R5", "R0", "R1"
+		}
+		fmt.Fprintf(out, "\tMOVW %s, (%d*8+0)(R11)\n", a0, a)
+		fmt.Fprintf(out, "\tMOVW %s, (%d*8+4)(R11)\n", a1, a)
+		fmt.Fprintf(out, "\tMOVW %s, (%d*8+0)(R11)\n", b0, b)
+		fmt.Fprintf(out, "\tMOVW %s, (%d*8+4)(R11)\n", b1, b)
+	})
+	return out.String()
+}
+
+func MakeArmInvFft(_log_n int) string {
+	out := new(bytes.Buffer)
+	MakeInvFftGeneric(_log_n, func(a, b uint, w uint64) {
+		fmt.Fprintf(out, "\tMOVW (%d*8+0)(R11), R0\n", a)
+		fmt.Fprintf(out, "\tMOVW (%d*8+4)(R11), R1\n", a)
+		fmt.Fprintf(out, "\tMOVW (%d*8+0)(R11), R2\n", b)
+		fmt.Fprintf(out, "\tMOVW (%d*8+4)(R11), R3\n", b)
+		var a0, a1, b0, b1 string
+		switch i := multiplyType(w); i {
+		case 0:
+			fmt.Fprintf(out, "\tBL ·invbutterfly_null(SB)\n")
+			a0, a1, b0, b1 = "R4", "R5", "R6", "R7"
+		case -1:
+			fmt.Fprintf(out, "\tMOVW $0x%08X, R4\n", w&0xFFFFFFFF)
+			fmt.Fprintf(out, "\tMOVW $0x%08X, R5\n", (w>>32)&0xFFFFFFFF)
+			fmt.Fprintf(out, "\tBL ·invbutterfly_mul(SB)\n")
+			a0, a1, b0, b1 = "R2", "R3", "R0", "R1"
+		default:
+			// Since 2^96 mod p = -1, we subtract -1 and use a negative butterfly
+			fmt.Fprintf(out, "\tBL ·invbutterfly_shift%d(SB)\n", i-96)
+			a0, a1, b0, b1 = "R4", "R5", "R0", "R1"
+		}
+		fmt.Fprintf(out, "\tMOVW %s, (%d*8+0)(R11)\n", a0, a)
+		fmt.Fprintf(out, "\tMOVW %s, (%d*8+4)(R11)\n", a1, a)
+		fmt.Fprintf(out, "\tMOVW %s, (%d*8+0)(R11)\n", b0, b)
+		fmt.Fprintf(out, "\tMOVW %s, (%d*8+4)(R11)\n", b1, b)
+	})
+	return out.String()
+}
+
+// Make ffts_arm.go
+func generateArmFfts() {
+	t := template.Must(template.New("main").Funcs(template.FuncMap{
+		"Fft":    MakeArmFft,
+		"InvFft": MakeArmInvFft,
+	}).Parse(armAssembler))
+
+	out, err := os.Create("ffts_arm.h")
+	if err != nil {
+		log.Fatal(err)
+	}
+	if err = t.Execute(out, Data); err != nil {
+		log.Fatal(err)
+	}
+	if err = out.Close(); err != nil {
+		log.Fatal(err)
+	}
+}
+
+var armAssembler = `
+// Automatically generated - DO NOT EDIT
+// Regenerate with: {{ .Regenerate }}
+
+// NB Non golang calling convention here for the butterflies
+
+// Input in (R0, R1) (R2, R3)
+// Output in (R4, R5) (R6, R7)
+// Preserves R11
+// R12 = -1
+TEXT ·butterfly_null(SB),7,$-4-0
+	// u = mod_add(a, b)
+	// v = mod_sub(a, b)
+	MOD_ADD(R4, R5, R0, R1, R2, R3, R12)
+	MOD_SUB(R6, R7, R0, R1, R2, R3, R12)
+	RET
+
+// Input in (R0, R1) (R2, R3)
+// Output in (R4, R5) (R0, R1)
+// Preserves R11
+// R12 = -1
+
+{{ range .Shifts }}
+TEXT ·butterfly_shift{{.}}(SB),7,$-4-0
+	// u = mod_add(a, b)
+	// v = mod_shift{{.}}(mod_sub(a, b))
+	MOD_ADD(R4, R5, R0, R1, R2, R3, R12)
+	MOD_SUB(R6, R7, R0, R1, R2, R3, R12)
+{{ if lt . 32 }}
+	MOVW $0, R8
+	MOD_SHIFT_0_TO_31({{.}}, R0, R1, R6, R7, R12, R8)
+{{ else if lt . 64 }}
+	MOD_SHIFT_32_TO_63({{.}}, R0, R1, R6, R7, R12)
+{{ else }}
+	MOVW $0, R8
+	MOD_SHIFT_64_TO_95({{.}}, R0, R1, R6, R7, R12, R8)
+{{ end }}
+	RET
+{{ end }}
+
+// Input in (R0, R1) (R2, R3)
+// Twiddle in (R4, R5)
+// Output in (R6, R7) (R0, R1)
+// Preserves R11
+// R12 = -1
+
+TEXT ·butterfly_mul(SB),7,$4-0
+	// u = mod_add(a, b)
+	// v = mod_mul(mod_sub(a, b), w)
+	MOVW R11, -4(SP)
+	MOD_ADD(R6, R7, R0, R1, R2, R3, R12)
+	MOD_SUB(R8, R11, R0, R1, R2, R3, R12)
+	MOD_MUL(R0,R1, R4,R5, R8,R11, R2,R3,R14, R12, butterfly_mul_a)
+	MOVW -4(SP), R11
+	RET
+
+// Input in (R0, R1) (R2, R3)
+// Output in (R4, R5) (R6, R7)
+// Preserves R11
+// R12 = -1
+TEXT ·invbutterfly_null(SB),7,$-4-0
+	// u = mod_add(a, b)
+	// v = mod_sub(a, b)
+	MOD_ADD(R4, R5, R0, R1, R2, R3, R12)
+	MOD_SUB(R6, R7, R0, R1, R2, R3, R12)
+	RET
+
+// Input in (R0, R1) (R2, R3)
+// Output in (R6, R7) (R0, R1)
+// Preserves R11
+// R12 = -1
+// This effectively shifts shift+96
+// Note signs reversed in the butterfly since 2^96 mod p = -1
+
+{{ range .Shifts }}
+TEXT ·invbutterfly_shift{{.}}(SB),7,$0-0
+	// b = mod_shift{{.}}(b)
+	// u = mod_sub(a, b)
+	// v = mod_add(a, b)
+{{ if lt . 32 }}
+	MOVW $0, R8
+	MOD_SHIFT_0_TO_31({{.}}, R4, R5, R2, R3, R12, R8)
+{{ else if lt . 64 }}
+	MOD_SHIFT_32_TO_63({{.}}, R4, R5, R2, R3, R12)
+{{ else }}
+	MOVW $0, R8
+	MOD_SHIFT_64_TO_95({{.}}, R4, R5, R2, R3, R12, R8)
+{{ end }}
+	MOD_SUB(R6, R7, R0, R1, R4, R5, R12)
+	MOD_ADD(R0, R1, R0, R1, R4, R5, R12)
+	RET
+{{ end }}
+
+// Input in (R0, R1) (R2, R3)
+// Twiddle in (R4, R5)
+// Output in (R2, R3) (R0, R1)
+// Preserves R11
+// R12 = -1
+
+TEXT ·invbutterfly_mul(SB),7,$4-0
+	// b = mod_mul(b, w)
+	// u = mod_add(a, b)
+	// v = mod_sub(a, b)
+	MOVW R11, -4(SP)
+	MOD_MUL(R6,R7, R4,R5, R2,R3, R8,R11,R14, R12, invbutterfly_mul_a)
+	MOVW -4(SP), R11
+	MOD_ADD(R2, R3, R0, R1, R6, R7, R12)
+	MOD_SUB(R0, R1, R0, R1, R6, R7, R12)
+	RET
+
+{{ range $size := .FftSizes }}
+// Fft for size 2**{{$size}}
+//
+// This is an in place FFT with a bit reversed output
+TEXT ·fft{{$size}}(SB),7,$0-12
+	MOVW $-1, R12
+	MOVW x_len+4(FP), R0
+	MOVW x+0(FP), R11
+	CMP $(1<<{{$size}}), R0
+	BL.LO runtime·panicslice(SB)
+{{ Fft $size }}
+	RET
+
+// InvFft for size 2**{{$size}}
+//
+// This is an in place Inverse FFT with a bit reversed input
+TEXT ·invfft{{$size}}(SB),7,$0-12
+	MOVW $-1, R12
+	MOVW x_len+4(FP), R0
+	MOVW x+0(FP), R11
+	CMP $(1<<{{$size}}), R0
+	BL.LO runtime·panicslice(SB)
+{{ InvFft $size }}
+	RET
+{{ end }}
+`
+
 func main() {
 	generateFfts()
-	generateAsmFfts()
+	generateAmd64Ffts()
+	generateArmFfts()
 }

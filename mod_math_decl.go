@@ -1,6 +1,6 @@
 // Declarations for assembler routines
 
-// +build amd64
+// +build amd64 arm
 
 package main
 
@@ -23,7 +23,6 @@ func mod_mul(x, y uint64) (ret uint64)
 //go:noescape
 
 func mod_sqr(x uint64) (ret uint64)
-
 
 func mod_shift3(x uint64) (ret uint64)
 func mod_shift6(x uint64) (ret uint64)
