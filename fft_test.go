@@ -304,6 +304,7 @@ func TestFFT10(t *testing.T) {
 	testSlowVsFastish(t)
 	testFastishVsFastish(t)
 	testFastishVsFourStep(t)
+	testFastishVsUnrolled(t)
 }
 
 func Benchmark_fastish_Fft10(b *testing.B) {
