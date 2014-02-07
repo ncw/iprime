@@ -1,20 +1,85 @@
 iprime
 ======
 
-This is intended to be an optimised prime finder using integer only code.
+This is a Mersenne prime checker using integer only code.
 
 It is written in Go for portability between platforms and the easy of
 adding assembler to the code.
 
-The optimised bits aren't finished yet though!
+The code is working but the FFTs need more work.
 
-This was based on
-[my ioccc 2012 entry](http://www.craig-wood.com/nick/articles/ioccc-2012-mersenne-prime-checker/)
-where you can find some more information until I get round to
-rewriting it specifically for this.
+There is optimised assembler for ARM and AMD64 architectures.
 
-Notes
+This code is a port of
+[ARMPrime](http://www.craig-wood.com/nick/armprime/) software which ran
+on RISC OS only and was never very portable.
+
+I made a first cut at making ARMPrime more portable in
+[my ioccc 2012 entry](http://www.craig-wood.com/nick/articles/ioccc-2012-mersenne-prime-checker/) which was written in C.
+
+I decided to re-write again in Go because of the cross platform
+support and the fact that Go integrates really nicely with assembler
+code.  The testing suite has come in really useful as have the
+benchmarking suite.
+
+Install
+-------
+
+Iprime is a Go program and comes as a single binary file.
+
+Download the relevant binary from
+
+- http://www.craig-wood.com/nick/pub/iprime/
+
+Or alternatively if you have Go installed use
+
+    go get github.com/ncw/iprime
+
+and this will build the binary in `$GOPATH/bin`.  You can then modify
+the source and submit patches.
+
+Usage
 -----
+
+Use `iprime -h` to see all the options.
+
+    Mersenne prime tester
+    
+    Usage:
+    
+    ./iprime [options] q
+    
+    where q = Mersenne exponent to test
+    
+    Options:
+      -cpuprofile="": Write cpu profile to file
+      -fft-size=0: minimum size for FFT (2**n)
+      -iterations=0: Number of iterations to check run - 0 for full test
+
+The `-iterations` argument to the program allows the number of
+iterations to be put in, and using this it has been validated against
+the Prime95 test suite.
+
+The program comes with a unit test - run it like
+
+    go test -v -short
+
+If if you have lots of time to spare
+
+    go test -v
+
+Example output
+
+    $ ./iprime 521
+    Testing 2**521-1 with fft size 2**5 for 0 iterations
+    Residue 0x0000000000000000
+    That took 4.424103ms for 519 iterations which is 8.524us per iteration
+
+A residue of 0 after the full number of iterations means you've found
+a mersenne prime!
+
+How it works
+------------
 
 This program proves the primality of [Mersenne
 primes](http://en.wikipedia.org/wiki/Mersenne_prime) of the form `2^p
@@ -58,15 +123,16 @@ to 26, which means that an IBDWT can be defined for FFT sizes up to
 This all integer IBDWT isn't susceptible to the round off errors that
 plague the floating point implementation, but does suffer in the speed
 stakes from the fact that modern CPUs have much faster floating point
-units than integer units.
+units than integer units.  This is particularly noticeable in the x86
+works where 64 bit integer multiplies take 64 cycles.  However ARM
+chips, which this was originally designed for, 32x32 -> 64 multiples
+only take 1 cycle.
 
 For example to check if `2^18000000-1` is prime (a 5,418,539 digit
 number) [Prime95](http://www.mersenne.org/freesoft/) (the current
 speed demon) uses a `2^20` FFT size and each iteration takes it about
 25ms. On similar hardware it this program takes about 1.2s also using
-an FFT size of `2^20`!  Prime95 is written in optimised assembler to use
-SSE3 whereas this program was squeezed into 2k of portable C with a
-completely unoptimised FFT!
+an FFT size of `2^20`!
 
 This program can do an FFT of up to `2^26` entries.  Each entry can have
 up to 18 bits in (as `2*18+26 <= 63`), which means that the biggest
@@ -76,27 +142,18 @@ find a 100 million digit prime and scoop the [EFF $150,000
 prize](https://www.eff.org/awards/coop)!  It would take rather a long
 time though...
 
-The `-iterations` argument to the program allows the number of
-iterations to be put in, and using this it has been validated against
-the Prime95 test suite.
-
-The program comes with a unit test - run it like
-
-  go test -v -short
-
-If if you have lots of time to spare
-
-  go test -v
-
 Roadmap
 -------
 
 Implement
-  * FFT for small sizes which only have shifts
-  * Optimised ffts with shifts
-  * Four step fft so can use these ffts and improve cache locality
-  * Assembler primitives
-  * Assembler FFTs
+  * FFT for small sizes which only have shifts - DONE
+  * Optimised ffts with shifts - DONE
+  * Four step fft so can use these ffts and improve cache locality - DONE but needs more work
+  * Assembler primitives - DONE
+  * Assembler FFTs - DONE
+  * New FFT schemes (like the one used in FFTW)
+  * Save progress
+  * PrimeNet support
 
 License
 -------
