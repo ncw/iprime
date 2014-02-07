@@ -294,12 +294,12 @@ func syntaxError() {
 
 Usage:
 
-prog [options] q
+%s [options] q
 
 where q = Mersenne exponent to test
 
 Options:
-`)
+`, os.Args[0])
 	flag.PrintDefaults()
 }
 func main() {
