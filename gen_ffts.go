@@ -438,27 +438,35 @@ invfft{{$size}}ok:
 {{ end }}
 `
 
+// Load a quad word in r0, r1 to x[i]
 func LDRQ(out io.Writer, r0, r1 string, i uint) {
-	if i*8 < 4096 {
+	if i*8 < (1 << 12) {
+		// ARM offsets are 12 bits for LDR/STR
 		fmt.Fprintf(out, "\tMOVW (%d)(R11), %s\n", i*8, r0)
 		fmt.Fprintf(out, "\tMOVW (%d)(R11), %s\n", i*8+4, r1)
 	} else {
-		fmt.Fprintf(out, "\tADD $(%d<<3), R11, R8\n", i&0xFF00)
+		// ARM immediate constants are 8 bits shifted in multiples of 2
+		i <<= 1
+		fmt.Fprintf(out, "\tADD $(%d<<2), R11, R8\n", i&0xFF00)
 		if i&0xFF != 0 {
-			fmt.Fprintf(out, "\tADD $(%d<<3), R8, R8\n", i&0xFF)
+			fmt.Fprintf(out, "\tADD $(%d<<2), R8, R8\n", i&0xFF)
 		}
 		fmt.Fprintf(out, "\tMOVM.IA (R8), [%s,%s]\n", r0, r1)
 	}
 }
 
+// Save a quad word in r0, r1 to x[i]
 func STRQ(out io.Writer, r0, r1 string, i uint) {
-	if i*8 < 4096 {
+	if i*8 < (1 << 12) {
+		// ARM offsets are 12 bits for LDR/STR
 		fmt.Fprintf(out, "\tMOVW %s, (%d)(R11)\n", r0, i*8)
 		fmt.Fprintf(out, "\tMOVW %s, (%d)(R11)\n", r1, i*8+4)
 	} else {
-		fmt.Fprintf(out, "\tADD $(%d<<3), R11, R8\n", i&0xFF00)
+		// ARM immediate constants are 8 bits shifted in multiples of 2
+		i <<= 1
+		fmt.Fprintf(out, "\tADD $(%d<<2), R11, R8\n", i&0xFF00)
 		if i&0xFF != 0 {
-			fmt.Fprintf(out, "\tADD $(%d<<3), R8, R8\n", i&0xFF)
+			fmt.Fprintf(out, "\tADD $(%d<<2), R8, R8\n", i&0xFF)
 		}
 		fmt.Fprintf(out, "\tMOVM.IA [%s,%s], (R8)\n", r0, r1)
 	}
