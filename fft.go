@@ -113,6 +113,8 @@ func (f *FftSlow) InvFft(x []uint64) {
 // A fastish bit reversed O(n log n) FFT
 type FftFastish struct {
 	FftBasics
+	Twiddle    []uint64
+	InvTwiddle []uint64
 }
 
 // Check interface is satisfied
@@ -121,6 +123,21 @@ var _ Fft = (*FftFastish)(nil)
 func NewFftFastish(log_n uint8) *FftFastish {
 	f := &FftFastish{}
 	f.Init(log_n)
+
+	// Make the twiddles
+	f.Twiddle = make([]uint64, f.n)
+	var w uint64 = 1
+	for i := uint(0); i < f.n; i++ {
+		f.Twiddle[i] = w
+		w = mod_mul(w, f.MOD_W)
+	}
+	f.InvTwiddle = make([]uint64, f.n)
+	w = 1
+	for i := uint(0); i < f.n; i++ {
+		f.InvTwiddle[i] = w
+		w = mod_mul(w, f.MOD_INVW)
+	}
+
 	return f
 }
 
@@ -128,13 +145,14 @@ func NewFftFastish(log_n uint8) *FftFastish {
 //
 // Output is bit-reversed
 func (f *FftFastish) Fft(x []uint64) {
-	var d uint64 = f.MOD_W
-
+	var id uint = 1
+	twiddle := f.Twiddle
 	for k := f.log_n; k >= 1; k-- {
 		m := uint(1) << k
 		c := m >> 1
-		var w uint64 = 1
+		var iw uint = 0
 		for j := uint(0); j < c; j++ {
+			w := twiddle[iw]
 			for r := uint(0); r < f.n; r += m {
 				a := r + j
 				b := a + c
@@ -143,9 +161,9 @@ func (f *FftFastish) Fft(x []uint64) {
 				x[a] = mod_add(u, v)
 				x[b] = mod_mul(mod_sub(u, v), w)
 			}
-			w = mod_mul(w, d)
+			iw += id
 		}
-		d = mod_mul(d, d)
+		id <<= 1
 	}
 }
 
@@ -153,13 +171,14 @@ func (f *FftFastish) Fft(x []uint64) {
 //
 // Input should be bit-reversed
 func (f *FftFastish) InvFft(x []uint64) {
+	var id uint = f.n >> 1
+	twiddle := f.InvTwiddle
 	for k := uint8(1); k <= f.log_n; k++ {
 		m := uint(1) << k
 		c := m >> 1
-		z := uint64(1 << (f.log_n - k))
-		d := mod_pow(f.MOD_INVW, z)
-		w := uint64(1)
+		var iw uint = 0
 		for j := uint(0); j < c; j++ {
+			w := twiddle[iw]
 			for r := uint(0); r < f.n; r += m {
 				a := r + j
 				b := a + c
@@ -168,8 +187,9 @@ func (f *FftFastish) InvFft(x []uint64) {
 				x[a] = mod_add(u, v)
 				x[b] = mod_sub(u, v)
 			}
-			w = mod_mul(w, d)
+			iw += id
 		}
+		id >>= 1
 	}
 }
 
