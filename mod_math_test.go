@@ -342,7 +342,7 @@ func TestModPow(t *testing.T) {
 			C.Exp(A, B, P)
 			expected := C.Uint64()
 			if c != expected {
-				t.Fatalf("%d ** %d: Expecting %d but got %d", a, b, expected, c)
+				t.Errorf("0x%X ** 0x%X: Expecting 0x%X but got 0x%X", a, b, expected, c)
 			}
 		}
 	}

@@ -13,8 +13,8 @@ TEXT ·butterfly_null(SB),7,$0-0
 	// v = mod_sub(a, b)
 	MOVQ AX, CX
 	MOVQ AX, DX
-	MOD_ADD(CX, BX, R9, R8, butterfly_null_a)
-	MOD_SUB(DX, BX, R8, butterfly_null_b)
+	MOD_ADD(CX, BX, R9, R8)
+	MOD_SUB(DX, BX, R8)
 	RET
 
 
@@ -23,10 +23,10 @@ TEXT ·butterfly_shift3(SB),7,$0-0
 	// v = mod_shift3(mod_sub(a, b))
 	MOVQ AX, CX
 	MOVQ AX, DX
-	MOD_ADD(CX, BX, R9, R8, butterfly_shift3_a)
-	MOD_SUB(DX, BX, R8, butterfly_shift3_b)
+	MOD_ADD(CX, BX, R9, R8)
+	MOD_SUB(DX, BX, R8)
 
-	MOD_SHIFT_0_TO_31(DX, 3, AX, BX, R8, butterfly_shift3_c)
+	MOD_SHIFT_0_TO_31(DX, 3, AX, BX, R8)
 
 	RET
 
@@ -35,10 +35,10 @@ TEXT ·butterfly_shift6(SB),7,$0-0
 	// v = mod_shift6(mod_sub(a, b))
 	MOVQ AX, CX
 	MOVQ AX, DX
-	MOD_ADD(CX, BX, R9, R8, butterfly_shift6_a)
-	MOD_SUB(DX, BX, R8, butterfly_shift6_b)
+	MOD_ADD(CX, BX, R9, R8)
+	MOD_SUB(DX, BX, R8)
 
-	MOD_SHIFT_0_TO_31(DX, 6, AX, BX, R8, butterfly_shift6_c)
+	MOD_SHIFT_0_TO_31(DX, 6, AX, BX, R8)
 
 	RET
 
@@ -47,10 +47,10 @@ TEXT ·butterfly_shift9(SB),7,$0-0
 	// v = mod_shift9(mod_sub(a, b))
 	MOVQ AX, CX
 	MOVQ AX, DX
-	MOD_ADD(CX, BX, R9, R8, butterfly_shift9_a)
-	MOD_SUB(DX, BX, R8, butterfly_shift9_b)
+	MOD_ADD(CX, BX, R9, R8)
+	MOD_SUB(DX, BX, R8)
 
-	MOD_SHIFT_0_TO_31(DX, 9, AX, BX, R8, butterfly_shift9_c)
+	MOD_SHIFT_0_TO_31(DX, 9, AX, BX, R8)
 
 	RET
 
@@ -59,10 +59,10 @@ TEXT ·butterfly_shift12(SB),7,$0-0
 	// v = mod_shift12(mod_sub(a, b))
 	MOVQ AX, CX
 	MOVQ AX, DX
-	MOD_ADD(CX, BX, R9, R8, butterfly_shift12_a)
-	MOD_SUB(DX, BX, R8, butterfly_shift12_b)
+	MOD_ADD(CX, BX, R9, R8)
+	MOD_SUB(DX, BX, R8)
 
-	MOD_SHIFT_0_TO_31(DX, 12, AX, BX, R8, butterfly_shift12_c)
+	MOD_SHIFT_0_TO_31(DX, 12, AX, BX, R8)
 
 	RET
 
@@ -71,10 +71,10 @@ TEXT ·butterfly_shift15(SB),7,$0-0
 	// v = mod_shift15(mod_sub(a, b))
 	MOVQ AX, CX
 	MOVQ AX, DX
-	MOD_ADD(CX, BX, R9, R8, butterfly_shift15_a)
-	MOD_SUB(DX, BX, R8, butterfly_shift15_b)
+	MOD_ADD(CX, BX, R9, R8)
+	MOD_SUB(DX, BX, R8)
 
-	MOD_SHIFT_0_TO_31(DX, 15, AX, BX, R8, butterfly_shift15_c)
+	MOD_SHIFT_0_TO_31(DX, 15, AX, BX, R8)
 
 	RET
 
@@ -83,10 +83,10 @@ TEXT ·butterfly_shift18(SB),7,$0-0
 	// v = mod_shift18(mod_sub(a, b))
 	MOVQ AX, CX
 	MOVQ AX, DX
-	MOD_ADD(CX, BX, R9, R8, butterfly_shift18_a)
-	MOD_SUB(DX, BX, R8, butterfly_shift18_b)
+	MOD_ADD(CX, BX, R9, R8)
+	MOD_SUB(DX, BX, R8)
 
-	MOD_SHIFT_0_TO_31(DX, 18, AX, BX, R8, butterfly_shift18_c)
+	MOD_SHIFT_0_TO_31(DX, 18, AX, BX, R8)
 
 	RET
 
@@ -95,10 +95,10 @@ TEXT ·butterfly_shift21(SB),7,$0-0
 	// v = mod_shift21(mod_sub(a, b))
 	MOVQ AX, CX
 	MOVQ AX, DX
-	MOD_ADD(CX, BX, R9, R8, butterfly_shift21_a)
-	MOD_SUB(DX, BX, R8, butterfly_shift21_b)
+	MOD_ADD(CX, BX, R9, R8)
+	MOD_SUB(DX, BX, R8)
 
-	MOD_SHIFT_0_TO_31(DX, 21, AX, BX, R8, butterfly_shift21_c)
+	MOD_SHIFT_0_TO_31(DX, 21, AX, BX, R8)
 
 	RET
 
@@ -107,10 +107,10 @@ TEXT ·butterfly_shift24(SB),7,$0-0
 	// v = mod_shift24(mod_sub(a, b))
 	MOVQ AX, CX
 	MOVQ AX, DX
-	MOD_ADD(CX, BX, R9, R8, butterfly_shift24_a)
-	MOD_SUB(DX, BX, R8, butterfly_shift24_b)
+	MOD_ADD(CX, BX, R9, R8)
+	MOD_SUB(DX, BX, R8)
 
-	MOD_SHIFT_0_TO_31(DX, 24, AX, BX, R8, butterfly_shift24_c)
+	MOD_SHIFT_0_TO_31(DX, 24, AX, BX, R8)
 
 	RET
 
@@ -119,10 +119,10 @@ TEXT ·butterfly_shift27(SB),7,$0-0
 	// v = mod_shift27(mod_sub(a, b))
 	MOVQ AX, CX
 	MOVQ AX, DX
-	MOD_ADD(CX, BX, R9, R8, butterfly_shift27_a)
-	MOD_SUB(DX, BX, R8, butterfly_shift27_b)
+	MOD_ADD(CX, BX, R9, R8)
+	MOD_SUB(DX, BX, R8)
 
-	MOD_SHIFT_0_TO_31(DX, 27, AX, BX, R8, butterfly_shift27_c)
+	MOD_SHIFT_0_TO_31(DX, 27, AX, BX, R8)
 
 	RET
 
@@ -131,10 +131,10 @@ TEXT ·butterfly_shift30(SB),7,$0-0
 	// v = mod_shift30(mod_sub(a, b))
 	MOVQ AX, CX
 	MOVQ AX, DX
-	MOD_ADD(CX, BX, R9, R8, butterfly_shift30_a)
-	MOD_SUB(DX, BX, R8, butterfly_shift30_b)
+	MOD_ADD(CX, BX, R9, R8)
+	MOD_SUB(DX, BX, R8)
 
-	MOD_SHIFT_0_TO_31(DX, 30, AX, BX, R8, butterfly_shift30_c)
+	MOD_SHIFT_0_TO_31(DX, 30, AX, BX, R8)
 
 	RET
 
@@ -143,10 +143,10 @@ TEXT ·butterfly_shift33(SB),7,$0-0
 	// v = mod_shift33(mod_sub(a, b))
 	MOVQ AX, CX
 	MOVQ AX, DX
-	MOD_ADD(CX, BX, R9, R8, butterfly_shift33_a)
-	MOD_SUB(DX, BX, R8, butterfly_shift33_b)
+	MOD_ADD(CX, BX, R9, R8)
+	MOD_SUB(DX, BX, R8)
 
-	MOD_SHIFT_32_TO_63(DX, 33, AX, BX, R9, R8, butterfly_shift33_d)
+	MOD_SHIFT_32_TO_63(DX, 33, AX, BX, R9, R8)
 
 	RET
 
@@ -155,10 +155,10 @@ TEXT ·butterfly_shift36(SB),7,$0-0
 	// v = mod_shift36(mod_sub(a, b))
 	MOVQ AX, CX
 	MOVQ AX, DX
-	MOD_ADD(CX, BX, R9, R8, butterfly_shift36_a)
-	MOD_SUB(DX, BX, R8, butterfly_shift36_b)
+	MOD_ADD(CX, BX, R9, R8)
+	MOD_SUB(DX, BX, R8)
 
-	MOD_SHIFT_32_TO_63(DX, 36, AX, BX, R9, R8, butterfly_shift36_d)
+	MOD_SHIFT_32_TO_63(DX, 36, AX, BX, R9, R8)
 
 	RET
 
@@ -167,10 +167,10 @@ TEXT ·butterfly_shift39(SB),7,$0-0
 	// v = mod_shift39(mod_sub(a, b))
 	MOVQ AX, CX
 	MOVQ AX, DX
-	MOD_ADD(CX, BX, R9, R8, butterfly_shift39_a)
-	MOD_SUB(DX, BX, R8, butterfly_shift39_b)
+	MOD_ADD(CX, BX, R9, R8)
+	MOD_SUB(DX, BX, R8)
 
-	MOD_SHIFT_32_TO_63(DX, 39, AX, BX, R9, R8, butterfly_shift39_d)
+	MOD_SHIFT_32_TO_63(DX, 39, AX, BX, R9, R8)
 
 	RET
 
@@ -179,10 +179,10 @@ TEXT ·butterfly_shift42(SB),7,$0-0
 	// v = mod_shift42(mod_sub(a, b))
 	MOVQ AX, CX
 	MOVQ AX, DX
-	MOD_ADD(CX, BX, R9, R8, butterfly_shift42_a)
-	MOD_SUB(DX, BX, R8, butterfly_shift42_b)
+	MOD_ADD(CX, BX, R9, R8)
+	MOD_SUB(DX, BX, R8)
 
-	MOD_SHIFT_32_TO_63(DX, 42, AX, BX, R9, R8, butterfly_shift42_d)
+	MOD_SHIFT_32_TO_63(DX, 42, AX, BX, R9, R8)
 
 	RET
 
@@ -191,10 +191,10 @@ TEXT ·butterfly_shift45(SB),7,$0-0
 	// v = mod_shift45(mod_sub(a, b))
 	MOVQ AX, CX
 	MOVQ AX, DX
-	MOD_ADD(CX, BX, R9, R8, butterfly_shift45_a)
-	MOD_SUB(DX, BX, R8, butterfly_shift45_b)
+	MOD_ADD(CX, BX, R9, R8)
+	MOD_SUB(DX, BX, R8)
 
-	MOD_SHIFT_32_TO_63(DX, 45, AX, BX, R9, R8, butterfly_shift45_d)
+	MOD_SHIFT_32_TO_63(DX, 45, AX, BX, R9, R8)
 
 	RET
 
@@ -203,10 +203,10 @@ TEXT ·butterfly_shift48(SB),7,$0-0
 	// v = mod_shift48(mod_sub(a, b))
 	MOVQ AX, CX
 	MOVQ AX, DX
-	MOD_ADD(CX, BX, R9, R8, butterfly_shift48_a)
-	MOD_SUB(DX, BX, R8, butterfly_shift48_b)
+	MOD_ADD(CX, BX, R9, R8)
+	MOD_SUB(DX, BX, R8)
 
-	MOD_SHIFT_32_TO_63(DX, 48, AX, BX, R9, R8, butterfly_shift48_d)
+	MOD_SHIFT_32_TO_63(DX, 48, AX, BX, R9, R8)
 
 	RET
 
@@ -215,10 +215,10 @@ TEXT ·butterfly_shift51(SB),7,$0-0
 	// v = mod_shift51(mod_sub(a, b))
 	MOVQ AX, CX
 	MOVQ AX, DX
-	MOD_ADD(CX, BX, R9, R8, butterfly_shift51_a)
-	MOD_SUB(DX, BX, R8, butterfly_shift51_b)
+	MOD_ADD(CX, BX, R9, R8)
+	MOD_SUB(DX, BX, R8)
 
-	MOD_SHIFT_32_TO_63(DX, 51, AX, BX, R9, R8, butterfly_shift51_d)
+	MOD_SHIFT_32_TO_63(DX, 51, AX, BX, R9, R8)
 
 	RET
 
@@ -227,10 +227,10 @@ TEXT ·butterfly_shift54(SB),7,$0-0
 	// v = mod_shift54(mod_sub(a, b))
 	MOVQ AX, CX
 	MOVQ AX, DX
-	MOD_ADD(CX, BX, R9, R8, butterfly_shift54_a)
-	MOD_SUB(DX, BX, R8, butterfly_shift54_b)
+	MOD_ADD(CX, BX, R9, R8)
+	MOD_SUB(DX, BX, R8)
 
-	MOD_SHIFT_32_TO_63(DX, 54, AX, BX, R9, R8, butterfly_shift54_d)
+	MOD_SHIFT_32_TO_63(DX, 54, AX, BX, R9, R8)
 
 	RET
 
@@ -239,10 +239,10 @@ TEXT ·butterfly_shift57(SB),7,$0-0
 	// v = mod_shift57(mod_sub(a, b))
 	MOVQ AX, CX
 	MOVQ AX, DX
-	MOD_ADD(CX, BX, R9, R8, butterfly_shift57_a)
-	MOD_SUB(DX, BX, R8, butterfly_shift57_b)
+	MOD_ADD(CX, BX, R9, R8)
+	MOD_SUB(DX, BX, R8)
 
-	MOD_SHIFT_32_TO_63(DX, 57, AX, BX, R9, R8, butterfly_shift57_d)
+	MOD_SHIFT_32_TO_63(DX, 57, AX, BX, R9, R8)
 
 	RET
 
@@ -251,10 +251,10 @@ TEXT ·butterfly_shift60(SB),7,$0-0
 	// v = mod_shift60(mod_sub(a, b))
 	MOVQ AX, CX
 	MOVQ AX, DX
-	MOD_ADD(CX, BX, R9, R8, butterfly_shift60_a)
-	MOD_SUB(DX, BX, R8, butterfly_shift60_b)
+	MOD_ADD(CX, BX, R9, R8)
+	MOD_SUB(DX, BX, R8)
 
-	MOD_SHIFT_32_TO_63(DX, 60, AX, BX, R9, R8, butterfly_shift60_d)
+	MOD_SHIFT_32_TO_63(DX, 60, AX, BX, R9, R8)
 
 	RET
 
@@ -263,10 +263,10 @@ TEXT ·butterfly_shift63(SB),7,$0-0
 	// v = mod_shift63(mod_sub(a, b))
 	MOVQ AX, CX
 	MOVQ AX, DX
-	MOD_ADD(CX, BX, R9, R8, butterfly_shift63_a)
-	MOD_SUB(DX, BX, R8, butterfly_shift63_b)
+	MOD_ADD(CX, BX, R9, R8)
+	MOD_SUB(DX, BX, R8)
 
-	MOD_SHIFT_32_TO_63(DX, 63, AX, BX, R9, R8, butterfly_shift63_d)
+	MOD_SHIFT_32_TO_63(DX, 63, AX, BX, R9, R8)
 
 	RET
 
@@ -275,10 +275,10 @@ TEXT ·butterfly_shift66(SB),7,$0-0
 	// v = mod_shift66(mod_sub(a, b))
 	MOVQ AX, CX
 	MOVQ AX, DX
-	MOD_ADD(CX, BX, R9, R8, butterfly_shift66_a)
-	MOD_SUB(DX, BX, R8, butterfly_shift66_b)
+	MOD_ADD(CX, BX, R9, R8)
+	MOD_SUB(DX, BX, R8)
 
-	MOD_SHIFT_64_TO_95(DX, 66, AX, BX, R8, butterfly_shift66_e)
+	MOD_SHIFT_64_TO_95(DX, 66, AX, BX, R8)
 
 	RET
 
@@ -287,10 +287,10 @@ TEXT ·butterfly_shift69(SB),7,$0-0
 	// v = mod_shift69(mod_sub(a, b))
 	MOVQ AX, CX
 	MOVQ AX, DX
-	MOD_ADD(CX, BX, R9, R8, butterfly_shift69_a)
-	MOD_SUB(DX, BX, R8, butterfly_shift69_b)
+	MOD_ADD(CX, BX, R9, R8)
+	MOD_SUB(DX, BX, R8)
 
-	MOD_SHIFT_64_TO_95(DX, 69, AX, BX, R8, butterfly_shift69_e)
+	MOD_SHIFT_64_TO_95(DX, 69, AX, BX, R8)
 
 	RET
 
@@ -299,10 +299,10 @@ TEXT ·butterfly_shift72(SB),7,$0-0
 	// v = mod_shift72(mod_sub(a, b))
 	MOVQ AX, CX
 	MOVQ AX, DX
-	MOD_ADD(CX, BX, R9, R8, butterfly_shift72_a)
-	MOD_SUB(DX, BX, R8, butterfly_shift72_b)
+	MOD_ADD(CX, BX, R9, R8)
+	MOD_SUB(DX, BX, R8)
 
-	MOD_SHIFT_64_TO_95(DX, 72, AX, BX, R8, butterfly_shift72_e)
+	MOD_SHIFT_64_TO_95(DX, 72, AX, BX, R8)
 
 	RET
 
@@ -311,10 +311,10 @@ TEXT ·butterfly_shift75(SB),7,$0-0
 	// v = mod_shift75(mod_sub(a, b))
 	MOVQ AX, CX
 	MOVQ AX, DX
-	MOD_ADD(CX, BX, R9, R8, butterfly_shift75_a)
-	MOD_SUB(DX, BX, R8, butterfly_shift75_b)
+	MOD_ADD(CX, BX, R9, R8)
+	MOD_SUB(DX, BX, R8)
 
-	MOD_SHIFT_64_TO_95(DX, 75, AX, BX, R8, butterfly_shift75_e)
+	MOD_SHIFT_64_TO_95(DX, 75, AX, BX, R8)
 
 	RET
 
@@ -323,10 +323,10 @@ TEXT ·butterfly_shift78(SB),7,$0-0
 	// v = mod_shift78(mod_sub(a, b))
 	MOVQ AX, CX
 	MOVQ AX, DX
-	MOD_ADD(CX, BX, R9, R8, butterfly_shift78_a)
-	MOD_SUB(DX, BX, R8, butterfly_shift78_b)
+	MOD_ADD(CX, BX, R9, R8)
+	MOD_SUB(DX, BX, R8)
 
-	MOD_SHIFT_64_TO_95(DX, 78, AX, BX, R8, butterfly_shift78_e)
+	MOD_SHIFT_64_TO_95(DX, 78, AX, BX, R8)
 
 	RET
 
@@ -335,10 +335,10 @@ TEXT ·butterfly_shift81(SB),7,$0-0
 	// v = mod_shift81(mod_sub(a, b))
 	MOVQ AX, CX
 	MOVQ AX, DX
-	MOD_ADD(CX, BX, R9, R8, butterfly_shift81_a)
-	MOD_SUB(DX, BX, R8, butterfly_shift81_b)
+	MOD_ADD(CX, BX, R9, R8)
+	MOD_SUB(DX, BX, R8)
 
-	MOD_SHIFT_64_TO_95(DX, 81, AX, BX, R8, butterfly_shift81_e)
+	MOD_SHIFT_64_TO_95(DX, 81, AX, BX, R8)
 
 	RET
 
@@ -347,10 +347,10 @@ TEXT ·butterfly_shift84(SB),7,$0-0
 	// v = mod_shift84(mod_sub(a, b))
 	MOVQ AX, CX
 	MOVQ AX, DX
-	MOD_ADD(CX, BX, R9, R8, butterfly_shift84_a)
-	MOD_SUB(DX, BX, R8, butterfly_shift84_b)
+	MOD_ADD(CX, BX, R9, R8)
+	MOD_SUB(DX, BX, R8)
 
-	MOD_SHIFT_64_TO_95(DX, 84, AX, BX, R8, butterfly_shift84_e)
+	MOD_SHIFT_64_TO_95(DX, 84, AX, BX, R8)
 
 	RET
 
@@ -359,10 +359,10 @@ TEXT ·butterfly_shift87(SB),7,$0-0
 	// v = mod_shift87(mod_sub(a, b))
 	MOVQ AX, CX
 	MOVQ AX, DX
-	MOD_ADD(CX, BX, R9, R8, butterfly_shift87_a)
-	MOD_SUB(DX, BX, R8, butterfly_shift87_b)
+	MOD_ADD(CX, BX, R9, R8)
+	MOD_SUB(DX, BX, R8)
 
-	MOD_SHIFT_64_TO_95(DX, 87, AX, BX, R8, butterfly_shift87_e)
+	MOD_SHIFT_64_TO_95(DX, 87, AX, BX, R8)
 
 	RET
 
@@ -371,10 +371,10 @@ TEXT ·butterfly_shift90(SB),7,$0-0
 	// v = mod_shift90(mod_sub(a, b))
 	MOVQ AX, CX
 	MOVQ AX, DX
-	MOD_ADD(CX, BX, R9, R8, butterfly_shift90_a)
-	MOD_SUB(DX, BX, R8, butterfly_shift90_b)
+	MOD_ADD(CX, BX, R9, R8)
+	MOD_SUB(DX, BX, R8)
 
-	MOD_SHIFT_64_TO_95(DX, 90, AX, BX, R8, butterfly_shift90_e)
+	MOD_SHIFT_64_TO_95(DX, 90, AX, BX, R8)
 
 	RET
 
@@ -383,10 +383,10 @@ TEXT ·butterfly_shift93(SB),7,$0-0
 	// v = mod_shift93(mod_sub(a, b))
 	MOVQ AX, CX
 	MOVQ AX, DX
-	MOD_ADD(CX, BX, R9, R8, butterfly_shift93_a)
-	MOD_SUB(DX, BX, R8, butterfly_shift93_b)
+	MOD_ADD(CX, BX, R9, R8)
+	MOD_SUB(DX, BX, R8)
 
-	MOD_SHIFT_64_TO_95(DX, 93, AX, BX, R8, butterfly_shift93_e)
+	MOD_SHIFT_64_TO_95(DX, 93, AX, BX, R8)
 
 	RET
 
@@ -395,10 +395,10 @@ TEXT ·butterfly_mul(SB),7,$0-0
 	// u = mod_add(a, b)
 	// v = mod_mul(mod_sub(a, b), w)
 	MOVQ AX, CX
-	MOD_ADD(CX, BX, R9, R8, butterfly_mul_a)
-	MOD_SUB(AX, BX, R8, butterfly_mul_b)
+	MOD_ADD(CX, BX, R9, R8)
+	MOD_SUB(AX, BX, R8)
         MULQ	DI /* DI * AX -> (DX, AX) */
-        MOD_REDUCE(DX, AX, BX, R9, R8, butterfly_mul_c)
+        MOD_REDUCE(DX, AX, BX, R9, R8)
 	MOVQ AX, DX
 	RET
 
@@ -407,8 +407,8 @@ TEXT ·invbutterfly_null(SB),7,$0-0
 	// v = mod_sub(a, b)
 	MOVQ AX, CX
 	MOVQ AX, DX
-	MOD_ADD(CX, BX, R9, R8, invbutterfly_null_a)
-	MOD_SUB(DX, BX, R8, invbutterfly_null_b)
+	MOD_ADD(CX, BX, R9, R8)
+	MOD_SUB(DX, BX, R8)
 	RET
 
 
@@ -419,12 +419,12 @@ TEXT ·invbutterfly_shift3(SB),7,$0-0
 	// u = mod_sub(a, b)
 	// v = mod_add(a, b)
 
-	MOD_SHIFT_0_TO_31(BX, 3, CX, DX, R8, invbutterfly_shift3_c)
+	MOD_SHIFT_0_TO_31(BX, 3, CX, DX, R8)
 
 	MOVQ AX, CX
 	MOVQ AX, DX
-	MOD_SUB(CX, BX, R8, invbutterfly_shift3_a)
-	MOD_ADD(DX, BX, R9, R8, invbutterfly_shift3_b)
+	MOD_SUB(CX, BX, R8)
+	MOD_ADD(DX, BX, R9, R8)
 	RET
 
 // This effectively shifts shift+96
@@ -434,12 +434,12 @@ TEXT ·invbutterfly_shift6(SB),7,$0-0
 	// u = mod_sub(a, b)
 	// v = mod_add(a, b)
 
-	MOD_SHIFT_0_TO_31(BX, 6, CX, DX, R8, invbutterfly_shift6_c)
+	MOD_SHIFT_0_TO_31(BX, 6, CX, DX, R8)
 
 	MOVQ AX, CX
 	MOVQ AX, DX
-	MOD_SUB(CX, BX, R8, invbutterfly_shift6_a)
-	MOD_ADD(DX, BX, R9, R8, invbutterfly_shift6_b)
+	MOD_SUB(CX, BX, R8)
+	MOD_ADD(DX, BX, R9, R8)
 	RET
 
 // This effectively shifts shift+96
@@ -449,12 +449,12 @@ TEXT ·invbutterfly_shift9(SB),7,$0-0
 	// u = mod_sub(a, b)
 	// v = mod_add(a, b)
 
-	MOD_SHIFT_0_TO_31(BX, 9, CX, DX, R8, invbutterfly_shift9_c)
+	MOD_SHIFT_0_TO_31(BX, 9, CX, DX, R8)
 
 	MOVQ AX, CX
 	MOVQ AX, DX
-	MOD_SUB(CX, BX, R8, invbutterfly_shift9_a)
-	MOD_ADD(DX, BX, R9, R8, invbutterfly_shift9_b)
+	MOD_SUB(CX, BX, R8)
+	MOD_ADD(DX, BX, R9, R8)
 	RET
 
 // This effectively shifts shift+96
@@ -464,12 +464,12 @@ TEXT ·invbutterfly_shift12(SB),7,$0-0
 	// u = mod_sub(a, b)
 	// v = mod_add(a, b)
 
-	MOD_SHIFT_0_TO_31(BX, 12, CX, DX, R8, invbutterfly_shift12_c)
+	MOD_SHIFT_0_TO_31(BX, 12, CX, DX, R8)
 
 	MOVQ AX, CX
 	MOVQ AX, DX
-	MOD_SUB(CX, BX, R8, invbutterfly_shift12_a)
-	MOD_ADD(DX, BX, R9, R8, invbutterfly_shift12_b)
+	MOD_SUB(CX, BX, R8)
+	MOD_ADD(DX, BX, R9, R8)
 	RET
 
 // This effectively shifts shift+96
@@ -479,12 +479,12 @@ TEXT ·invbutterfly_shift15(SB),7,$0-0
 	// u = mod_sub(a, b)
 	// v = mod_add(a, b)
 
-	MOD_SHIFT_0_TO_31(BX, 15, CX, DX, R8, invbutterfly_shift15_c)
+	MOD_SHIFT_0_TO_31(BX, 15, CX, DX, R8)
 
 	MOVQ AX, CX
 	MOVQ AX, DX
-	MOD_SUB(CX, BX, R8, invbutterfly_shift15_a)
-	MOD_ADD(DX, BX, R9, R8, invbutterfly_shift15_b)
+	MOD_SUB(CX, BX, R8)
+	MOD_ADD(DX, BX, R9, R8)
 	RET
 
 // This effectively shifts shift+96
@@ -494,12 +494,12 @@ TEXT ·invbutterfly_shift18(SB),7,$0-0
 	// u = mod_sub(a, b)
 	// v = mod_add(a, b)
 
-	MOD_SHIFT_0_TO_31(BX, 18, CX, DX, R8, invbutterfly_shift18_c)
+	MOD_SHIFT_0_TO_31(BX, 18, CX, DX, R8)
 
 	MOVQ AX, CX
 	MOVQ AX, DX
-	MOD_SUB(CX, BX, R8, invbutterfly_shift18_a)
-	MOD_ADD(DX, BX, R9, R8, invbutterfly_shift18_b)
+	MOD_SUB(CX, BX, R8)
+	MOD_ADD(DX, BX, R9, R8)
 	RET
 
 // This effectively shifts shift+96
@@ -509,12 +509,12 @@ TEXT ·invbutterfly_shift21(SB),7,$0-0
 	// u = mod_sub(a, b)
 	// v = mod_add(a, b)
 
-	MOD_SHIFT_0_TO_31(BX, 21, CX, DX, R8, invbutterfly_shift21_c)
+	MOD_SHIFT_0_TO_31(BX, 21, CX, DX, R8)
 
 	MOVQ AX, CX
 	MOVQ AX, DX
-	MOD_SUB(CX, BX, R8, invbutterfly_shift21_a)
-	MOD_ADD(DX, BX, R9, R8, invbutterfly_shift21_b)
+	MOD_SUB(CX, BX, R8)
+	MOD_ADD(DX, BX, R9, R8)
 	RET
 
 // This effectively shifts shift+96
@@ -524,12 +524,12 @@ TEXT ·invbutterfly_shift24(SB),7,$0-0
 	// u = mod_sub(a, b)
 	// v = mod_add(a, b)
 
-	MOD_SHIFT_0_TO_31(BX, 24, CX, DX, R8, invbutterfly_shift24_c)
+	MOD_SHIFT_0_TO_31(BX, 24, CX, DX, R8)
 
 	MOVQ AX, CX
 	MOVQ AX, DX
-	MOD_SUB(CX, BX, R8, invbutterfly_shift24_a)
-	MOD_ADD(DX, BX, R9, R8, invbutterfly_shift24_b)
+	MOD_SUB(CX, BX, R8)
+	MOD_ADD(DX, BX, R9, R8)
 	RET
 
 // This effectively shifts shift+96
@@ -539,12 +539,12 @@ TEXT ·invbutterfly_shift27(SB),7,$0-0
 	// u = mod_sub(a, b)
 	// v = mod_add(a, b)
 
-	MOD_SHIFT_0_TO_31(BX, 27, CX, DX, R8, invbutterfly_shift27_c)
+	MOD_SHIFT_0_TO_31(BX, 27, CX, DX, R8)
 
 	MOVQ AX, CX
 	MOVQ AX, DX
-	MOD_SUB(CX, BX, R8, invbutterfly_shift27_a)
-	MOD_ADD(DX, BX, R9, R8, invbutterfly_shift27_b)
+	MOD_SUB(CX, BX, R8)
+	MOD_ADD(DX, BX, R9, R8)
 	RET
 
 // This effectively shifts shift+96
@@ -554,12 +554,12 @@ TEXT ·invbutterfly_shift30(SB),7,$0-0
 	// u = mod_sub(a, b)
 	// v = mod_add(a, b)
 
-	MOD_SHIFT_0_TO_31(BX, 30, CX, DX, R8, invbutterfly_shift30_c)
+	MOD_SHIFT_0_TO_31(BX, 30, CX, DX, R8)
 
 	MOVQ AX, CX
 	MOVQ AX, DX
-	MOD_SUB(CX, BX, R8, invbutterfly_shift30_a)
-	MOD_ADD(DX, BX, R9, R8, invbutterfly_shift30_b)
+	MOD_SUB(CX, BX, R8)
+	MOD_ADD(DX, BX, R9, R8)
 	RET
 
 // This effectively shifts shift+96
@@ -569,12 +569,12 @@ TEXT ·invbutterfly_shift33(SB),7,$0-0
 	// u = mod_sub(a, b)
 	// v = mod_add(a, b)
 
-	MOD_SHIFT_32_TO_63(BX, 33, CX, DX, R9, R8, invbutterfly_shift33_d)
+	MOD_SHIFT_32_TO_63(BX, 33, CX, DX, R9, R8)
 
 	MOVQ AX, CX
 	MOVQ AX, DX
-	MOD_SUB(CX, BX, R8, invbutterfly_shift33_a)
-	MOD_ADD(DX, BX, R9, R8, invbutterfly_shift33_b)
+	MOD_SUB(CX, BX, R8)
+	MOD_ADD(DX, BX, R9, R8)
 	RET
 
 // This effectively shifts shift+96
@@ -584,12 +584,12 @@ TEXT ·invbutterfly_shift36(SB),7,$0-0
 	// u = mod_sub(a, b)
 	// v = mod_add(a, b)
 
-	MOD_SHIFT_32_TO_63(BX, 36, CX, DX, R9, R8, invbutterfly_shift36_d)
+	MOD_SHIFT_32_TO_63(BX, 36, CX, DX, R9, R8)
 
 	MOVQ AX, CX
 	MOVQ AX, DX
-	MOD_SUB(CX, BX, R8, invbutterfly_shift36_a)
-	MOD_ADD(DX, BX, R9, R8, invbutterfly_shift36_b)
+	MOD_SUB(CX, BX, R8)
+	MOD_ADD(DX, BX, R9, R8)
 	RET
 
 // This effectively shifts shift+96
@@ -599,12 +599,12 @@ TEXT ·invbutterfly_shift39(SB),7,$0-0
 	// u = mod_sub(a, b)
 	// v = mod_add(a, b)
 
-	MOD_SHIFT_32_TO_63(BX, 39, CX, DX, R9, R8, invbutterfly_shift39_d)
+	MOD_SHIFT_32_TO_63(BX, 39, CX, DX, R9, R8)
 
 	MOVQ AX, CX
 	MOVQ AX, DX
-	MOD_SUB(CX, BX, R8, invbutterfly_shift39_a)
-	MOD_ADD(DX, BX, R9, R8, invbutterfly_shift39_b)
+	MOD_SUB(CX, BX, R8)
+	MOD_ADD(DX, BX, R9, R8)
 	RET
 
 // This effectively shifts shift+96
@@ -614,12 +614,12 @@ TEXT ·invbutterfly_shift42(SB),7,$0-0
 	// u = mod_sub(a, b)
 	// v = mod_add(a, b)
 
-	MOD_SHIFT_32_TO_63(BX, 42, CX, DX, R9, R8, invbutterfly_shift42_d)
+	MOD_SHIFT_32_TO_63(BX, 42, CX, DX, R9, R8)
 
 	MOVQ AX, CX
 	MOVQ AX, DX
-	MOD_SUB(CX, BX, R8, invbutterfly_shift42_a)
-	MOD_ADD(DX, BX, R9, R8, invbutterfly_shift42_b)
+	MOD_SUB(CX, BX, R8)
+	MOD_ADD(DX, BX, R9, R8)
 	RET
 
 // This effectively shifts shift+96
@@ -629,12 +629,12 @@ TEXT ·invbutterfly_shift45(SB),7,$0-0
 	// u = mod_sub(a, b)
 	// v = mod_add(a, b)
 
-	MOD_SHIFT_32_TO_63(BX, 45, CX, DX, R9, R8, invbutterfly_shift45_d)
+	MOD_SHIFT_32_TO_63(BX, 45, CX, DX, R9, R8)
 
 	MOVQ AX, CX
 	MOVQ AX, DX
-	MOD_SUB(CX, BX, R8, invbutterfly_shift45_a)
-	MOD_ADD(DX, BX, R9, R8, invbutterfly_shift45_b)
+	MOD_SUB(CX, BX, R8)
+	MOD_ADD(DX, BX, R9, R8)
 	RET
 
 // This effectively shifts shift+96
@@ -644,12 +644,12 @@ TEXT ·invbutterfly_shift48(SB),7,$0-0
 	// u = mod_sub(a, b)
 	// v = mod_add(a, b)
 
-	MOD_SHIFT_32_TO_63(BX, 48, CX, DX, R9, R8, invbutterfly_shift48_d)
+	MOD_SHIFT_32_TO_63(BX, 48, CX, DX, R9, R8)
 
 	MOVQ AX, CX
 	MOVQ AX, DX
-	MOD_SUB(CX, BX, R8, invbutterfly_shift48_a)
-	MOD_ADD(DX, BX, R9, R8, invbutterfly_shift48_b)
+	MOD_SUB(CX, BX, R8)
+	MOD_ADD(DX, BX, R9, R8)
 	RET
 
 // This effectively shifts shift+96
@@ -659,12 +659,12 @@ TEXT ·invbutterfly_shift51(SB),7,$0-0
 	// u = mod_sub(a, b)
 	// v = mod_add(a, b)
 
-	MOD_SHIFT_32_TO_63(BX, 51, CX, DX, R9, R8, invbutterfly_shift51_d)
+	MOD_SHIFT_32_TO_63(BX, 51, CX, DX, R9, R8)
 
 	MOVQ AX, CX
 	MOVQ AX, DX
-	MOD_SUB(CX, BX, R8, invbutterfly_shift51_a)
-	MOD_ADD(DX, BX, R9, R8, invbutterfly_shift51_b)
+	MOD_SUB(CX, BX, R8)
+	MOD_ADD(DX, BX, R9, R8)
 	RET
 
 // This effectively shifts shift+96
@@ -674,12 +674,12 @@ TEXT ·invbutterfly_shift54(SB),7,$0-0
 	// u = mod_sub(a, b)
 	// v = mod_add(a, b)
 
-	MOD_SHIFT_32_TO_63(BX, 54, CX, DX, R9, R8, invbutterfly_shift54_d)
+	MOD_SHIFT_32_TO_63(BX, 54, CX, DX, R9, R8)
 
 	MOVQ AX, CX
 	MOVQ AX, DX
-	MOD_SUB(CX, BX, R8, invbutterfly_shift54_a)
-	MOD_ADD(DX, BX, R9, R8, invbutterfly_shift54_b)
+	MOD_SUB(CX, BX, R8)
+	MOD_ADD(DX, BX, R9, R8)
 	RET
 
 // This effectively shifts shift+96
@@ -689,12 +689,12 @@ TEXT ·invbutterfly_shift57(SB),7,$0-0
 	// u = mod_sub(a, b)
 	// v = mod_add(a, b)
 
-	MOD_SHIFT_32_TO_63(BX, 57, CX, DX, R9, R8, invbutterfly_shift57_d)
+	MOD_SHIFT_32_TO_63(BX, 57, CX, DX, R9, R8)
 
 	MOVQ AX, CX
 	MOVQ AX, DX
-	MOD_SUB(CX, BX, R8, invbutterfly_shift57_a)
-	MOD_ADD(DX, BX, R9, R8, invbutterfly_shift57_b)
+	MOD_SUB(CX, BX, R8)
+	MOD_ADD(DX, BX, R9, R8)
 	RET
 
 // This effectively shifts shift+96
@@ -704,12 +704,12 @@ TEXT ·invbutterfly_shift60(SB),7,$0-0
 	// u = mod_sub(a, b)
 	// v = mod_add(a, b)
 
-	MOD_SHIFT_32_TO_63(BX, 60, CX, DX, R9, R8, invbutterfly_shift60_d)
+	MOD_SHIFT_32_TO_63(BX, 60, CX, DX, R9, R8)
 
 	MOVQ AX, CX
 	MOVQ AX, DX
-	MOD_SUB(CX, BX, R8, invbutterfly_shift60_a)
-	MOD_ADD(DX, BX, R9, R8, invbutterfly_shift60_b)
+	MOD_SUB(CX, BX, R8)
+	MOD_ADD(DX, BX, R9, R8)
 	RET
 
 // This effectively shifts shift+96
@@ -719,12 +719,12 @@ TEXT ·invbutterfly_shift63(SB),7,$0-0
 	// u = mod_sub(a, b)
 	// v = mod_add(a, b)
 
-	MOD_SHIFT_32_TO_63(BX, 63, CX, DX, R9, R8, invbutterfly_shift63_d)
+	MOD_SHIFT_32_TO_63(BX, 63, CX, DX, R9, R8)
 
 	MOVQ AX, CX
 	MOVQ AX, DX
-	MOD_SUB(CX, BX, R8, invbutterfly_shift63_a)
-	MOD_ADD(DX, BX, R9, R8, invbutterfly_shift63_b)
+	MOD_SUB(CX, BX, R8)
+	MOD_ADD(DX, BX, R9, R8)
 	RET
 
 // This effectively shifts shift+96
@@ -734,12 +734,12 @@ TEXT ·invbutterfly_shift66(SB),7,$0-0
 	// u = mod_sub(a, b)
 	// v = mod_add(a, b)
 
-	MOD_SHIFT_64_TO_95(BX, 66, CX, DX, R8, invbutterfly_shift66_e)
+	MOD_SHIFT_64_TO_95(BX, 66, CX, DX, R8)
 
 	MOVQ AX, CX
 	MOVQ AX, DX
-	MOD_SUB(CX, BX, R8, invbutterfly_shift66_a)
-	MOD_ADD(DX, BX, R9, R8, invbutterfly_shift66_b)
+	MOD_SUB(CX, BX, R8)
+	MOD_ADD(DX, BX, R9, R8)
 	RET
 
 // This effectively shifts shift+96
@@ -749,12 +749,12 @@ TEXT ·invbutterfly_shift69(SB),7,$0-0
 	// u = mod_sub(a, b)
 	// v = mod_add(a, b)
 
-	MOD_SHIFT_64_TO_95(BX, 69, CX, DX, R8, invbutterfly_shift69_e)
+	MOD_SHIFT_64_TO_95(BX, 69, CX, DX, R8)
 
 	MOVQ AX, CX
 	MOVQ AX, DX
-	MOD_SUB(CX, BX, R8, invbutterfly_shift69_a)
-	MOD_ADD(DX, BX, R9, R8, invbutterfly_shift69_b)
+	MOD_SUB(CX, BX, R8)
+	MOD_ADD(DX, BX, R9, R8)
 	RET
 
 // This effectively shifts shift+96
@@ -764,12 +764,12 @@ TEXT ·invbutterfly_shift72(SB),7,$0-0
 	// u = mod_sub(a, b)
 	// v = mod_add(a, b)
 
-	MOD_SHIFT_64_TO_95(BX, 72, CX, DX, R8, invbutterfly_shift72_e)
+	MOD_SHIFT_64_TO_95(BX, 72, CX, DX, R8)
 
 	MOVQ AX, CX
 	MOVQ AX, DX
-	MOD_SUB(CX, BX, R8, invbutterfly_shift72_a)
-	MOD_ADD(DX, BX, R9, R8, invbutterfly_shift72_b)
+	MOD_SUB(CX, BX, R8)
+	MOD_ADD(DX, BX, R9, R8)
 	RET
 
 // This effectively shifts shift+96
@@ -779,12 +779,12 @@ TEXT ·invbutterfly_shift75(SB),7,$0-0
 	// u = mod_sub(a, b)
 	// v = mod_add(a, b)
 
-	MOD_SHIFT_64_TO_95(BX, 75, CX, DX, R8, invbutterfly_shift75_e)
+	MOD_SHIFT_64_TO_95(BX, 75, CX, DX, R8)
 
 	MOVQ AX, CX
 	MOVQ AX, DX
-	MOD_SUB(CX, BX, R8, invbutterfly_shift75_a)
-	MOD_ADD(DX, BX, R9, R8, invbutterfly_shift75_b)
+	MOD_SUB(CX, BX, R8)
+	MOD_ADD(DX, BX, R9, R8)
 	RET
 
 // This effectively shifts shift+96
@@ -794,12 +794,12 @@ TEXT ·invbutterfly_shift78(SB),7,$0-0
 	// u = mod_sub(a, b)
 	// v = mod_add(a, b)
 
-	MOD_SHIFT_64_TO_95(BX, 78, CX, DX, R8, invbutterfly_shift78_e)
+	MOD_SHIFT_64_TO_95(BX, 78, CX, DX, R8)
 
 	MOVQ AX, CX
 	MOVQ AX, DX
-	MOD_SUB(CX, BX, R8, invbutterfly_shift78_a)
-	MOD_ADD(DX, BX, R9, R8, invbutterfly_shift78_b)
+	MOD_SUB(CX, BX, R8)
+	MOD_ADD(DX, BX, R9, R8)
 	RET
 
 // This effectively shifts shift+96
@@ -809,12 +809,12 @@ TEXT ·invbutterfly_shift81(SB),7,$0-0
 	// u = mod_sub(a, b)
 	// v = mod_add(a, b)
 
-	MOD_SHIFT_64_TO_95(BX, 81, CX, DX, R8, invbutterfly_shift81_e)
+	MOD_SHIFT_64_TO_95(BX, 81, CX, DX, R8)
 
 	MOVQ AX, CX
 	MOVQ AX, DX
-	MOD_SUB(CX, BX, R8, invbutterfly_shift81_a)
-	MOD_ADD(DX, BX, R9, R8, invbutterfly_shift81_b)
+	MOD_SUB(CX, BX, R8)
+	MOD_ADD(DX, BX, R9, R8)
 	RET
 
 // This effectively shifts shift+96
@@ -824,12 +824,12 @@ TEXT ·invbutterfly_shift84(SB),7,$0-0
 	// u = mod_sub(a, b)
 	// v = mod_add(a, b)
 
-	MOD_SHIFT_64_TO_95(BX, 84, CX, DX, R8, invbutterfly_shift84_e)
+	MOD_SHIFT_64_TO_95(BX, 84, CX, DX, R8)
 
 	MOVQ AX, CX
 	MOVQ AX, DX
-	MOD_SUB(CX, BX, R8, invbutterfly_shift84_a)
-	MOD_ADD(DX, BX, R9, R8, invbutterfly_shift84_b)
+	MOD_SUB(CX, BX, R8)
+	MOD_ADD(DX, BX, R9, R8)
 	RET
 
 // This effectively shifts shift+96
@@ -839,12 +839,12 @@ TEXT ·invbutterfly_shift87(SB),7,$0-0
 	// u = mod_sub(a, b)
 	// v = mod_add(a, b)
 
-	MOD_SHIFT_64_TO_95(BX, 87, CX, DX, R8, invbutterfly_shift87_e)
+	MOD_SHIFT_64_TO_95(BX, 87, CX, DX, R8)
 
 	MOVQ AX, CX
 	MOVQ AX, DX
-	MOD_SUB(CX, BX, R8, invbutterfly_shift87_a)
-	MOD_ADD(DX, BX, R9, R8, invbutterfly_shift87_b)
+	MOD_SUB(CX, BX, R8)
+	MOD_ADD(DX, BX, R9, R8)
 	RET
 
 // This effectively shifts shift+96
@@ -854,12 +854,12 @@ TEXT ·invbutterfly_shift90(SB),7,$0-0
 	// u = mod_sub(a, b)
 	// v = mod_add(a, b)
 
-	MOD_SHIFT_64_TO_95(BX, 90, CX, DX, R8, invbutterfly_shift90_e)
+	MOD_SHIFT_64_TO_95(BX, 90, CX, DX, R8)
 
 	MOVQ AX, CX
 	MOVQ AX, DX
-	MOD_SUB(CX, BX, R8, invbutterfly_shift90_a)
-	MOD_ADD(DX, BX, R9, R8, invbutterfly_shift90_b)
+	MOD_SUB(CX, BX, R8)
+	MOD_ADD(DX, BX, R9, R8)
 	RET
 
 // This effectively shifts shift+96
@@ -869,12 +869,12 @@ TEXT ·invbutterfly_shift93(SB),7,$0-0
 	// u = mod_sub(a, b)
 	// v = mod_add(a, b)
 
-	MOD_SHIFT_64_TO_95(BX, 93, CX, DX, R8, invbutterfly_shift93_e)
+	MOD_SHIFT_64_TO_95(BX, 93, CX, DX, R8)
 
 	MOVQ AX, CX
 	MOVQ AX, DX
-	MOD_SUB(CX, BX, R8, invbutterfly_shift93_a)
-	MOD_ADD(DX, BX, R9, R8, invbutterfly_shift93_b)
+	MOD_SUB(CX, BX, R8)
+	MOD_ADD(DX, BX, R9, R8)
 	RET
 
 
@@ -885,10 +885,10 @@ TEXT ·invbutterfly_mul(SB),7,$0-0
 	MOVQ AX, CX
 	MOVQ BX, AX
         MULQ	DI /* DI * AX -> (DX, AX) */
-        MOD_REDUCE(DX, AX, SI, BX, R8, invbutterfly_mul_a)
+        MOD_REDUCE(DX, AX, SI, BX, R8)
 	MOVQ CX, DX
-	MOD_ADD(CX, AX, R9, R8, invbutterfly_mul_b)
-	MOD_SUB(DX, AX, R8, invbutterfly_mul_c)
+	MOD_ADD(CX, AX, R9, R8)
+	MOD_SUB(DX, AX, R8)
 	RET
 
 

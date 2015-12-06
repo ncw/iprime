@@ -331,8 +331,8 @@ TEXT ·butterfly_null(SB),7,$0-0
 	// v = mod_sub(a, b)
 	MOVQ AX, CX
 	MOVQ AX, DX
-	MOD_ADD(CX, BX, R9, R8, butterfly_null_a)
-	MOD_SUB(DX, BX, R8, butterfly_null_b)
+	MOD_ADD(CX, BX, R9, R8)
+	MOD_SUB(DX, BX, R8)
 	RET
 
 {{ range .Shifts }}
@@ -341,14 +341,14 @@ TEXT ·butterfly_shift{{.}}(SB),7,$0-0
 	// v = mod_shift{{.}}(mod_sub(a, b))
 	MOVQ AX, CX
 	MOVQ AX, DX
-	MOD_ADD(CX, BX, R9, R8, butterfly_shift{{.}}_a)
-	MOD_SUB(DX, BX, R8, butterfly_shift{{.}}_b)
+	MOD_ADD(CX, BX, R9, R8)
+	MOD_SUB(DX, BX, R8)
 {{ if lt . 32 }}
-	MOD_SHIFT_0_TO_31(DX, {{.}}, AX, BX, R8, butterfly_shift{{.}}_c)
+	MOD_SHIFT_0_TO_31(DX, {{.}}, AX, BX, R8)
 {{ else if lt . 64 }}
-	MOD_SHIFT_32_TO_63(DX, {{.}}, AX, BX, R9, R8, butterfly_shift{{.}}_d)
+	MOD_SHIFT_32_TO_63(DX, {{.}}, AX, BX, R9, R8)
 {{ else }}
-	MOD_SHIFT_64_TO_95(DX, {{.}}, AX, BX, R8, butterfly_shift{{.}}_e)
+	MOD_SHIFT_64_TO_95(DX, {{.}}, AX, BX, R8)
 {{ end }}
 	RET
 {{ end }}
@@ -357,10 +357,10 @@ TEXT ·butterfly_mul(SB),7,$0-0
 	// u = mod_add(a, b)
 	// v = mod_mul(mod_sub(a, b), w)
 	MOVQ AX, CX
-	MOD_ADD(CX, BX, R9, R8, butterfly_mul_a)
-	MOD_SUB(AX, BX, R8, butterfly_mul_b)
+	MOD_ADD(CX, BX, R9, R8)
+	MOD_SUB(AX, BX, R8)
         MULQ	DI /* DI * AX -> (DX, AX) */
-        MOD_REDUCE(DX, AX, BX, R9, R8, butterfly_mul_c)
+        MOD_REDUCE(DX, AX, BX, R9, R8)
 	MOVQ AX, DX
 	RET
 
@@ -369,8 +369,8 @@ TEXT ·invbutterfly_null(SB),7,$0-0
 	// v = mod_sub(a, b)
 	MOVQ AX, CX
 	MOVQ AX, DX
-	MOD_ADD(CX, BX, R9, R8, invbutterfly_null_a)
-	MOD_SUB(DX, BX, R8, invbutterfly_null_b)
+	MOD_ADD(CX, BX, R9, R8)
+	MOD_SUB(DX, BX, R8)
 	RET
 
 {{ range .Shifts }}
@@ -381,16 +381,16 @@ TEXT ·invbutterfly_shift{{.}}(SB),7,$0-0
 	// u = mod_sub(a, b)
 	// v = mod_add(a, b)
 {{ if lt . 32 }}
-	MOD_SHIFT_0_TO_31(BX, {{.}}, CX, DX, R8, invbutterfly_shift{{.}}_c)
+	MOD_SHIFT_0_TO_31(BX, {{.}}, CX, DX, R8)
 {{ else if lt . 64 }}
-	MOD_SHIFT_32_TO_63(BX, {{.}}, CX, DX, R9, R8, invbutterfly_shift{{.}}_d)
+	MOD_SHIFT_32_TO_63(BX, {{.}}, CX, DX, R9, R8)
 {{ else }}
-	MOD_SHIFT_64_TO_95(BX, {{.}}, CX, DX, R8, invbutterfly_shift{{.}}_e)
+	MOD_SHIFT_64_TO_95(BX, {{.}}, CX, DX, R8)
 {{ end }}
 	MOVQ AX, CX
 	MOVQ AX, DX
-	MOD_SUB(CX, BX, R8, invbutterfly_shift{{.}}_a)
-	MOD_ADD(DX, BX, R9, R8, invbutterfly_shift{{.}}_b)
+	MOD_SUB(CX, BX, R8)
+	MOD_ADD(DX, BX, R9, R8)
 	RET
 {{ end }}
 
@@ -401,10 +401,10 @@ TEXT ·invbutterfly_mul(SB),7,$0-0
 	MOVQ AX, CX
 	MOVQ BX, AX
         MULQ	DI /* DI * AX -> (DX, AX) */
-        MOD_REDUCE(DX, AX, SI, BX, R8, invbutterfly_mul_a)
+        MOD_REDUCE(DX, AX, SI, BX, R8)
 	MOVQ CX, DX
-	MOD_ADD(CX, AX, R9, R8, invbutterfly_mul_b)
-	MOD_SUB(DX, AX, R8, invbutterfly_mul_c)
+	MOD_ADD(CX, AX, R9, R8)
+	MOD_SUB(DX, AX, R8)
 	RET
 
 {{ range $size := .FftSizes }}
@@ -594,7 +594,7 @@ TEXT ·butterfly_mul(SB),7,$4-0
 	MOVW R11, -4(SP)
 	MOD_ADD(R6, R7, R0, R1, R2, R3, R12)
 	MOD_SUB(R8, R11, R0, R1, R2, R3, R12)
-	MOD_MUL(R0,R1, R4,R5, R8,R11, R2,R3,R14, R12, butterfly_mul_a)
+	MOD_MUL(R0,R1, R4,R5, R8,R11, R2,R3,R14, R12)
 	MOVW -4(SP), R11
 	RET
 
@@ -646,7 +646,7 @@ TEXT ·invbutterfly_mul(SB),7,$4-0
 	// u = mod_add(a, b)
 	// v = mod_sub(a, b)
 	MOVW R11, -4(SP)
-	MOD_MUL(R6,R7, R4,R5, R2,R3, R8,R11,R14, R12, invbutterfly_mul_a)
+	MOD_MUL(R6,R7, R4,R5, R2,R3, R8,R11,R14, R12)
 	MOVW -4(SP), R11
 	MOD_ADD(R2, R3, R0, R1, R6, R7, R12)
 	MOD_SUB(R0, R1, R0, R1, R6, R7, R12)

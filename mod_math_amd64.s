@@ -8,15 +8,14 @@ Quicker way of loading MOD_P ?
 
 // Compute x = x - y mod p
 // Preserves y, p
-#define MOD_SUB(x, y, p, LABEL) \
+#define MOD_SUB(x, y, p) \
 	SUBQ    y, x; \
-	JCC     LABEL; \
+	JCC     2(PC); \
 	ADDQ    p, x; \
-LABEL:	\
 
 // Compute x = x - y mod p
 // Preserves y, p
-#define MOD_SUB2(x, y, p, LABEL) \
+#define MOD_SUB2(x, y, p) \
         XORQ R10,R10; \
 	SUBQ    y, x; \
         CMOVQCS  p, R9; \
@@ -25,16 +24,16 @@ LABEL:	\
 
 // Compute x = x + y mod p, using t
 // Preserves y, p
-#define MOD_ADD(x, y, t, p, LABEL) \
+#define MOD_ADD(x, y, t, p) \
         MOVQ    p, t; \
 	SUBQ    y, t; \
-        MOD_SUB(x, t, p, LABEL); \
+        MOD_SUB(x, t, p); \
 
 TEXT ·mod_sub(SB),7,$0-24
 	MOVQ    $MOD_P,R8
 	MOVQ    x+0(FP),AX
 	MOVQ    y+8(FP),CX
-        MOD_SUB(AX, CX, R8, sub1)
+        MOD_SUB(AX, CX, R8)
 	MOVQ    AX,ret+16(FP)
 	RET
 
@@ -42,37 +41,36 @@ TEXT ·mod_add(SB),7,$0-24
 	MOVQ    $MOD_P,R8
 	MOVQ    x+0(FP),AX
 	MOVQ    y+8(FP),BP
-        MOD_ADD(AX, BP, CX, R8, add1)
+        MOD_ADD(AX, BP, CX, R8)
 	MOVQ    AX,ret+16(FP)
 	RET
 
 // Reduce 128 bits mod p (b, a) -> a
 // Using t0, t1
 // This is much faster (2 or 3 times) than DIVQ
-#define MOD_REDUCE(b, a, t0, t1, p, label) \
+#define MOD_REDUCE(b, a, t0, t1, p) \
         MOVL    b, t0;	/* Also sets upper 32 bits to 0 */ \
 	SHRQ    $32,b ; \
  ; \
 	CMPQ    a,p ; \
-	JCS     label/**/1 ; \
+	JCS     2(PC) ; \
 	SUBQ    p,a ; \
-label/**/1: ; \
  ; \
 	MOVLQZX t0,t1 ; \
-        MOD_SUB(a, t1, p, label/**/2) ; \
+        MOD_SUB(a, t1, p) ; \
  ; \
 	MOVLQZX b,t1 ; \
-        MOD_SUB(a, t1, p, label/**/3) ; \
+        MOD_SUB(a, t1, p) ; \
  ; \
 	SHLQ    $32,t0 ; \
-        MOD_ADD(a, t0, t1, p, label/**/4) ; \
+        MOD_ADD(a, t0, t1, p) ; \
 
 TEXT ·mod_reduce(SB),7,$0-24
 	MOVQ    $MOD_P,R8
 	MOVQ    b+0(FP),DI
 	MOVQ    a+8(FP),AX
 
-        MOD_REDUCE(DI, AX, SI, BX, R8, mod_reduce)
+        MOD_REDUCE(DI, AX, SI, BX, R8)
 
 	MOVQ    AX,ret+16(FP)
 	RET 
@@ -82,7 +80,7 @@ TEXT ·mod_mul(SB),7,$0-24
 	MOVQ    y+8(FP),AX
 	MOVQ    $MOD_P,R8
         MULQ	BX /* BX * AX -> (DX, AX) */
-        MOD_REDUCE(DX, AX, SI, BX, R8, mod_mul)
+        MOD_REDUCE(DX, AX, SI, BX, R8)
 	MOVQ    AX,ret+16(FP)
 	RET 
 
@@ -90,11 +88,11 @@ TEXT ·mod_sqr(SB),7,$0-16
 	MOVQ    x+0(FP),AX
 	MOVQ    $MOD_P,R8
         MULQ	AX /* AX * AX -> (DX, AX) */
-        MOD_REDUCE(DX, AX, SI, BX, R8, mod_sqr)
+        MOD_REDUCE(DX, AX, SI, BX, R8)
 	MOVQ    AX,ret+8(FP)
 	RET 
 
-#define MOD_SHIFT_0_TO_31(x, shift, t0, t1, p, label) \
+#define MOD_SHIFT_0_TO_31(x, shift, t0, t1, p) \
         MOVQ     x, t0; \
 	/* xmid_xlow := x << shift, (xmid, xlow) */ \
         SHLQ    $shift, x; \
@@ -105,12 +103,12 @@ TEXT ·mod_sqr(SB),7,$0-16
         SHLQ    $32, t0; \
         SUBQ     t1, t0; \
 	/* r := xmid_xlow - t, (xmid, xlow) + (xhigh, -xhigh) */ \
-        MOD_ADD(x, t0, t1, p, label); \
+        MOD_ADD(x, t0, t1, p); \
 
 #define MOD_SHIFT_0_TO_31_PROC(shift) \
 	MOVQ    x+0(FP),AX; \
 	MOVQ    $MOD_P,R8; \
-        MOD_SHIFT_0_TO_31(AX, shift, BX, CX, R8, mod_shift/**/shift/**/a); \
+        MOD_SHIFT_0_TO_31(AX, shift, BX, CX, R8); \
 	MOVQ    AX,ret+8(FP); \
 	RET ; \
 
@@ -135,7 +133,7 @@ TEXT ·mod_shift27(SB),7,$0-16
 TEXT ·mod_shift30(SB),7,$0-16
 	MOD_SHIFT_0_TO_31_PROC(30)
 
-#define MOD_SHIFT_32_TO_63(x, shift, t0, t1, t2, p, label) \
+#define MOD_SHIFT_32_TO_63(x, shift, t0, t1, t2, p) \
         MOVQ x, t0; \
 	/* xmid := uint32(x >> (64 - shift)) */ \
 	/* xlow := uint32(x << (shift - 32)) */ \
@@ -153,14 +151,14 @@ TEXT ·mod_shift30(SB),7,$0-16
         SUBQ t2, x; \
 	/* t1 = uint64(xhigh), (0, xhigh) */ \
 	/* r := t0 - t1, (xmid, - xhigh - xmid) */ \
-        MOD_SUB(x, t0, p, label/**/1); \
+        MOD_SUB(x, t0, p); \
 	/* add (xlow, 0) */ \
-        MOD_ADD(x, t1, t0, p, label/**/2); \
+        MOD_ADD(x, t1, t0, p); \
 
 #define MOD_SHIFT_32_TO_63_PROC(shift) \
 	MOVQ    x+0(FP),AX; \
 	MOVQ    $MOD_P,R8; \
-        MOD_SHIFT_32_TO_63(AX, shift, BX, CX, DX, R8, mod_shift/**/shift/**/a); \
+        MOD_SHIFT_32_TO_63(AX, shift, BX, CX, DX, R8); \
 	MOVQ    AX,ret+8(FP); \
 	RET ; \
 
@@ -187,7 +185,7 @@ TEXT ·mod_shift60(SB),7,$0-16
 TEXT ·mod_shift63(SB),7,$0-16
 	MOD_SHIFT_32_TO_63_PROC(63)
 
-#define MOD_SHIFT_64_TO_95(x, shift, t0, t1, p, label) \
+#define MOD_SHIFT_64_TO_95(x, shift, t0, t1, p) \
         MOVQ x, t0; \
 	/* xlow := uint32(x << (shift - 64)) */ \
         SHLL $(shift - 64), x; \
@@ -202,12 +200,12 @@ TEXT ·mod_shift63(SB),7,$0-16
         SUBQ t1, x; \
 	/* t1 = uint64(xhigh)<<32 + uint64(xmid), (xhigh, xmid) */ \
 	/* r := t0 - t1, (xlow, -xlow) - (xhigh, xmid) */ \
-        MOD_SUB(x, t0, p, label); \
+        MOD_SUB(x, t0, p); \
 
 #define MOD_SHIFT_64_TO_95_PROC(shift) \
 	MOVQ    x+0(FP),AX; \
 	MOVQ    $MOD_P,R8; \
-        MOD_SHIFT_64_TO_95(AX, shift, BX, CX, R8, mod_shift/**/shift/**/a); \
+        MOD_SHIFT_64_TO_95(AX, shift, BX, CX, R8); \
 	MOVQ    AX,ret+8(FP); \
 	RET ; \
 
